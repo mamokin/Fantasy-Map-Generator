@@ -1,0 +1,38 @@
+{
+    "terminal.integrated.rendererType": "dom",
+    "terminal.integrated.fontFamily": "Fira Code",
+    "terminal.integrated.fontWeight": "300",
+    "terminal.integrated.fontSize": 15,
+    "explorer.confirmDelete": false,
+    "editor.rulers": [
+        100
+    ],
+    "editor.minimap.enabled": false,
+    "editor.wordWrap": "off",
+    "editor.formatOnPaste": true,
+    "editor.mouseWheelScrollSensitivity": 2,
+    "editor.smoothScrolling": true,
+    "editor.cursorBlinking": "expand",
+    "editor.fontFamily": "Fira Code, Monoisome, 'Regular', monospace",
+    "editor.formatOnSave": false,
+    "editor.fontLigatures": true,
+    "editor.renderWhitespace": "boundary",
+    "workbench.iconTheme": "eq-material-theme-icons-darker",
+    "workbench.colorTheme": "Material Theme Darker High Contrast",
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "workbench.colorCustomizations": {
+        "editorRuler.foreground": "#ff333388",
+        "editorWhitespace.foreground": "#7700ff"
+    },
+    "gitlens.keymap": "chorded",
+    "gitlens.advanced.messages": {
+        "suppressShowKeyBindingsNotice": true
+    },
+    "eslint.autoFixOnSave": true,
+    "prettier.eslintIntegration": true,
+    "prettier.printWidth": 100,
+    "prettier.singleQuote": true,
+    "prettier.trailingComma": "es5",
+    "prettier.useTabs": true,
+}

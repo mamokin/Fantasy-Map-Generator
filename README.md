@@ -21,8 +21,20 @@ The boilerplate for making electron applications built with vue (pretty much wha
 [![Build Status](https://semaphoreci.com/api/v1/simulatedgreg/electron-vue/branches/master/badge.svg)](https://semaphoreci.com/simulatedgreg/electron-vue)
 </div>
 
-## Overview
+***
+## Genesys GM
+This repo includes a project called Genesys GM.
 
+Genesys GM is an AIO tool for game masters using the Genesys books released by Fantasy Flight Games.  
+* Those familiar with the book and its layout will intuitively understand how to use this tool.
+
+## Features:
+* Character builder
+
+### Planned Features | 
+***
+
+## Boilerplate Overview
 The aim of this project is to remove the need of manually setting up electron apps using vue. electron-vue takes advantage of `vue-cli` for scaffolding, `webpack` with `vue-loader`, `electron-packager` or `electron-builder`, and some of the most used plugins like `vue-router`, `vuex`, and so much more.
 
 #### Check out the detailed documentation [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
@@ -79,34 +91,3 @@ vue init simulatedgreg/electron-vue#1.0 my-project
 ### Next Steps
 
 Make sure to take a look at the [documentation](https://simulatedgreg.gitbooks.io/electron-vue/content/). Here you will find useful information about configuration, project structure, and building your app. There's also a handy [FAQs](https://simulatedgreg.gitbooks.io/electron-vue/content/en/faqs.html) section.
-
-
-## Made with electron-vue
-Take a look at some of the amazing projects built with electron-vue. Want to have your own project listed? Feel free add your project to the bottom of the list below then submit a pull request.
-
-* [**Surfbird**](https://github.com/surfbirdapp/surfbird): A Twitter client built on Electron and Vue
-* [**Lulumi-browser**](https://github.com/qazbnm456/lulumi-browser): Lulumi-browser is a light weight browser coded with Vue.js 2 and Electron
-* [**Space-Snake**](https://github.com/ilyagru/Space-Snake): A Desktop game built with Electron and Vue.js.
-* [**Forrest**](https://github.com/stefanjudis/forrest): An npm scripts desktop client
-* [**miikun**](https://github.com/hiro0218/miikun): A Simple Markdown Editor
-* [**Dakika**](https://github.com/raj347/Dakika): A minute taking application that makes writing minutes a breeze
-* [**Dynamoc**](https://github.com/ieiayaobb/dynamoc): Dynamoc is a GUI client for dynamodb-local, dynalite and AWS dynamodb
-* [**Dockeron**](https://github.com/dockeron/dockeron): A dockeron project, built on Electron + Vue.js for Docker
-* [**Easysubs**](https://github.com/matiastucci/easysubs): Download subtitles in a very fast and simple way
-* [**adminScheduler**](https://github.com/danieltoorani/adminScheduler): An application leveraging electron for cross platform compatibility, Vue.js for lightning fast UI and full-calendar.io to deliver a premium calendar interface.
-* [**Backlog**](https://github.com/czytelny/backlog): Simple app for storing TODOs, ideas or backlog items. You can organize them with boards. Sleek flow. Built with Electron + Vue.js + iView
-* [**Opshell**](https://github.com/ricktbaker/opshell): Ops tool to make life easier working with AWS instances.
-* [**GitHoard**](https://github.com/jojobyte/githoard): Hoard git repositories with ease.
-* [**Data-curator**](https://github.com/ODIQueensland/data-curator): Share usable open data.
-* [**Bookmark**](https://github.com/mrgodhani/bookmark): Desktop app to manage bookmarked links using Atom Electron and Vue.js
-* [**Uber Run**](https://github.com/break-enter/uberrun): Simple automation desktop app to download and organize your tax invoices from Uber.
-* [**Netsix**](https://github.com/pulsardev/netsix): Share videos with your friends in a real peer-to-peer manner using WebRTC.
-* [**code-notes**](https://github.com/lauthieb/code-notes): A simple code snippet manager for developers built with Electron & Vue.js.
-* [**Pomotroid**](https://github.com/Splode/pomotroid): A simple and visually-pleasing Pomodoro timer
-* [**MarkText**](https://github.com/marktext/marktext): Mark Text is a realtime Markdown Editor.
-* [**vue-design**](https://github.com/L-Chris/vue-design): the best website visualization builder with Vue and Electron
-* [**ImapSync Client**](https://github.com/ridaamirini/ImapSyncClient): It's only an Internet Message Access Protocol Synchronization Client
-* [**Hve**](https://github.com/hellohve/hve): A static blog client tool you may like.
-* [**MarkdownFox**](https://github.com/lx4r/markdownfox): A simple Markdown viewer with auto update and PDF export.
-* [**Cleaver**](https://getcleaver.com/): Cleaver helps you provision servers ready for deploying your web apps with zero downtime - for free!
-* [**XPanel**](https://github.com/krustnic/xpanel): XAMPP control panel alternative built with Electron & Vue.js
