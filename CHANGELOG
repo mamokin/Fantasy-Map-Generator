@@ -1,0 +1,6 @@
+V0.0.1
+Initialized Project
+- Vuex + Electron.
+- Eslint rules.
+- Moved project management to GitLabs.
+- Confirmed dev build of electron launches.
