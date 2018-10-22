@@ -6,11 +6,6 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
-      path: '/map',
-      name: 'map',
-      component: require('@/components/Map/map').default
-    },
-    {
       path: '/',
       name: 'landing-page',
       component: require('@/components/LandingPage').default,
@@ -18,11 +13,6 @@ export default new Router({
     {
       path: '*',
       redirect: '/',
-    },
-    // {
-    //   path: '/polygons',
-    //   name: 'polygons',
-    //   component: require('@/components/polygons').default
-    // }
+    }
   ],
 });

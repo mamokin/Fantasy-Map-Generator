@@ -21,19 +21,6 @@ The boilerplate for making electron applications built with vue (pretty much wha
 [![Build Status](https://semaphoreci.com/api/v1/simulatedgreg/electron-vue/branches/master/badge.svg)](https://semaphoreci.com/simulatedgreg/electron-vue)
 </div>
 
-***
-## Genesys GM
-This repo includes a project called Genesys GM.
-
-Genesys GM is an AIO tool for game masters using the Genesys books released by Fantasy Flight Games.  
-* Those familiar with the book and its layout will intuitively understand how to use this tool.
-
-## Features:
-* Character builder
-
-### Planned Features | 
-***
-
 ## Boilerplate Overview
 The aim of this project is to remove the need of manually setting up electron apps using vue. electron-vue takes advantage of `vue-cli` for scaffolding, `webpack` with `vue-loader`, `electron-packager` or `electron-builder`, and some of the most used plugins like `vue-router`, `vuex`, and so much more.
 

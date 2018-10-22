@@ -1,8 +1,8 @@
 {
-  "name": "genesys-gm-electron",
+  "name": "azgaars-fantasy-map-generator",
   "version": "0.0.1",
   "author": "",
-  "description": "An AIO tool based around the Genesys book released by Fantasy Flight Games.",
+  "description": "Azgaar's Fantasy Map Generator and Editor",
   "license": "UNLICENSED",
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -22,8 +22,8 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "genesys-gm-electron",
-    "appId": "com.genesys-gm.icu",
+    "productName": "azgaars-fantasy-map-generator",
+    "appId": "com.azgaars-fantasy-map-generator.icu",
     "directories": {
       "output": "build"
     },
