@@ -6,7 +6,7 @@
 
 <script>
   export default {
-    name: 'genesys-gm-electron',
+    name: "Azgaar's Fantasy Map Generator",
   };
 </script>
 
