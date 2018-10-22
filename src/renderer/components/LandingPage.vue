@@ -1,7 +1,7 @@
 <template>
-  <div id="wrapper">
-    <img id="logo" src="~@/assets/logo.png" alt="electron-vue">
-    <main>
+  <div id="">
+    <!-- <img id="logo" src="~@/assets/logo.png" alt="electron-vue"> -->
+    <!-- <main>
       <div class="left-side">
         <span class="title">
           Welcome to your new project!
@@ -23,18 +23,22 @@
           <div class="title alt">Other Documentation</div>
           <button class="alt" @click="open('https://electron.atom.io/docs/')">Electron</button>
           <button class="alt" @click="open('https://vuejs.org/v2/guide/')">Vue.js</button>
+          <button class='alt' @click="open('/map')">Map</button>
+          <router-link to="/map" tag="button">MAP</router-link>
         </div>
       </div>
-    </main>
+    </main> -->
+    <map-gen/>
   </div>
 </template>
 
 <script>
-  import SystemInformation from './LandingPage/SystemInformation';
+  // import SystemInformation from './LandingPage/SystemInformation';
+  import MapGen from './Map/Map';
 
   export default {
     name: 'landing-page',
-    components: {SystemInformation},
+    components: {MapGen},
     methods: {
       open(link) {
         this.$electron.shell.openExternal(link);
