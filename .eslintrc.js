@@ -34,6 +34,7 @@ module.exports = {
         "error",
         "single"
     ],
+    "no-plusplus": [2, { "allowForLoopAfterthoughts": true }],
     "comma-dangle": "off",
     "no-console": "off",
     "no-underscore-dangle": "off",

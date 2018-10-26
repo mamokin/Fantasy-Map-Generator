@@ -6,10 +6,10 @@
 
 <script>
   export default {
-    name: "Azgaar's Fantasy Map Generator",
+    name: 'Azgaar\'s Fantasy Map Generator',
   };
 </script>
 
 <style>
-  /* CSS */
+/* CSS */
 </style>
