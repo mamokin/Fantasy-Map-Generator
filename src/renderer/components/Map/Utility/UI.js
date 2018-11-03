@@ -1,10 +1,58 @@
 import $ from 'jquery';
-import {
-  tooltip
-} from './DOMVariables';
-import {
-  debug
-} from './Const';
+import * as DOM from './DOMVariables';
+import * as C from './Const';
+import * as Toggle from './Toggles';
+
+const tooltip = C.tooltip;
+const debug = C.debug;
+
+// fireTemplateElDist selector handlers
+function fireTemplateElDist() {
+  if (this.value === 'interval') {
+    const interval = prompt('Populate a height interval (e.g. from 17 to 20), without space, but with hyphen', '17-20');
+    if (interval) {
+      const option = `<option value="${interval}">${interval}</option>`;
+      $(this).append(option).val(interval);
+    }
+  }
+}
+
+// drag any element changing transform
+function elementDrag() {
+  const el = d3.select(this);
+  const tr = parseTransform(el.attr('transform'));
+  const dx = +tr[0] - d3.event.x;
+  const dy = +tr[1] - d3.event.y;
+
+  d3.event.on('drag', () => {
+    const x = d3.event.x;
+    const y = d3.event.y;
+    const transform = `translate(${(dx + x)},${(dy + y)}) rotate(${tr[2]} ${tr[3]} ${tr[4]})`;
+    el.attr('transform', transform);
+    const pp = this.parentNode.parentNode.id;
+    if (pp === 'burgIcons' || pp === 'burgLabels') {
+      tip('Use dragging for fine-tuning only, to move burg to a different cell use "Relocate" button'); // eslint-disable-line
+    }
+
+    if (pp === 'labels') {
+      // also transform curve control circle
+      debug.select('circle').attr('transform', transform);
+    }
+  });
+
+  d3.event.on('end', () => {
+    // remember scaleBar bottom-right position
+    if (el.attr('id') === 'scaleBar') {
+      const xEnd = d3.event.x;
+      const yEnd = d3.event.y;
+      const diff = Math.abs(dx - xEnd) + Math.abs(dy - yEnd);
+      if (diff > 5) {
+        const bbox = el.node().getBoundingClientRect();
+        sessionStorage.setItem('scaleBar', [bbox.right, bbox.bottom]);
+      }
+    }
+  });
+}
 
 // Toggle Options pane
 $('#optionsTrigger').on('click', () => {
@@ -93,7 +141,7 @@ $('button, a, li, i').on('click', () => {
       const index = manors[capital].cell;
       temp.append('path')
         .attr('data-cell', index).attr('data-state', s.i)
-        .attr('d', `M${  polygons[index].join('L')  }Z`)
+        .attr('d', `M${polygons[index].join('L')}Z`)
         .attr('fill', s.color)
         .attr('stroke', 'red')
         .attr('stroke-width', 0.7);
@@ -208,8 +256,8 @@ $('button, a, li, i').on('click', () => {
         return;
       }
       s.name = generateStateName(s.i);
-      labels.select(`#regionLabel${  s.i}`).text(s.name);
-      editor.select(`#state${  s.i}`).select('.stateName').attr('value', s.name);
+      labels.select(`#regionLabel${s.i}`).text(s.name);
+      editor.select(`#state${s.i}`).select('.stateName').attr('value', s.name);
     });
   }
   if (id === 'countriesPercentage') {
@@ -241,7 +289,7 @@ $('button, a, li, i').on('click', () => {
       return;
     }
     const unit = areaUnit.value === 'square' ? `${distanceUnit.value}2` : areaUnit.value;
-    let data = `Country,Capital,Cells,Burgs,Area (${unit }),Population\n`; // countries headers
+    let data = `Country,Capital,Cells,Burgs,Area (${unit}),Population\n`; // countries headers
     $('#countriesBody > .states').each(function () {
       const country = $(this).attr('data-country');
       if (country === 'bottom') {
@@ -266,10 +314,10 @@ $('button, a, li, i').on('click', () => {
       if (m.region === 'removed') {
         return;
       } // skip removed burgs
-      data += `${m.name },`;
+      data += `${m.name},`;
       const country = m.region === 'neutral' ? 'neutral' : states[m.region].name;
       data += `${country},`;
-      data += `${cultures[m.culture].name },`;
+      data += `${cultures[m.culture].name},`;
       const population = m.population * urbanization.value * populationRate.value * 1000;
       data += `${population}\n`;
     });
@@ -279,7 +327,7 @@ $('button, a, li, i').on('click', () => {
     const url = window.URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     document.body.appendChild(link);
-    link.download = `countries_data${Date.now() }.csv`;
+    link.download = `countries_data${Date.now()}.csv`;
     link.href = url;
     link.click();
     window.setTimeout(() => {
@@ -354,8 +402,8 @@ $('button, a, li, i').on('click', () => {
             }
             m.region = 'removed';
             cells[m.cell].manor = undefined;
-            labels.select('[data-id=\'' + m.i + '\']').remove();
-            icons.selectAll('[data-id=\'' + m.i + '\']').remove();
+            labels.select(`[data-id='${m.i}']`).remove();
+            icons.selectAll(`[data-id='${m.i}']`).remove();
           });
           states[state].urbanPopulation = 0;
           states[state].burgs = 0;
@@ -393,7 +441,7 @@ $('button, a, li, i').on('click', () => {
         return;
       }
       const c = states[s].capital;
-      $(`#state${ s}`).attr('data-capital', manors[c].name);
+      $(`#state${s}`).attr('data-capital', manors[c].name);
       $(`#state${s} > .stateCapital`).val(manors[c].name);
     }
   }
@@ -644,7 +692,7 @@ $('button, a, li, i').on('click', () => {
     } else {
       $('#mapFilters .pressed').removeClass('pressed');
       $(this).addClass('pressed');
-      $('svg').attr('filter', `url(#filter-${ id })`);
+      $('svg').attr('filter', `url(#filter-${id})`);
     }
     return;
   }
@@ -686,7 +734,7 @@ $('button, a, li, i').on('click', () => {
     invokeActiveZooming();
   }
   if (id === 'styleFontPlus' || id === 'styleFontMinus') {
-    var el = viewbox.select(`#${ styleElementSelect.value}`);
+    var el = viewbox.select(`#${styleElementSelect.value}`);
     const mod = id === 'styleFontPlus' ? 1.1 : 0.9;
     el.selectAll('g').each(function () {
       const el = d3.select(this);
@@ -764,7 +812,7 @@ $('button, a, li, i').on('click', () => {
 });
 
 // support save options
-$('#saveDropdown > div').click(function () {
+$('#saveDropdown > div').click(() => {
   const id = this.id;
   const dns_allow_popup_message = localStorage.getItem('dns_allow_popup_message');
   if (!dns_allow_popup_message) {
@@ -804,12 +852,12 @@ $('#saveDropdown > div').click(function () {
 });
 
 // lock / unlock option randomization
-$('#options i[class^=\'icon-lock\']').click(function () {
+$('#options i[class^=\'icon-lock\']').click(() => {
   $(this).toggleClass('icon-lock icon-lock-open');
   const locked = +$(this).hasClass('icon-lock');
   $(this).attr('data-locked', locked);
   const option = (this.id).slice(4, -5).toLowerCase();
-  const value = $(`#${ option }Input`).val();
+  const value = $(`#${option}Input`).val();
   if (locked) {
     localStorage.setItem(option, value);
   } else {
@@ -842,13 +890,13 @@ $('#templateBody').sortable({
 });
 $('#mapLayers, #templateBody').disableSelection();
 
-$('#labelGroupButton').click(function () {
+$('#labelGroupButton').click(() => {
   $('#labelEditor > button').not(this).toggle();
   $('#labelGroupButtons').toggle();
 });
 
 // UI Button handlers
-$('.tab > button').on('click', function () {
+$('.tab > button').on('click', () => {
   $('.tabcontent').hide();
   $('.tab > button').removeClass('active');
   $(this).addClass('active');
@@ -881,12 +929,12 @@ $('#optionsSeedGenerate').on('click', () => {
 });
 
 // save dialog position if "stable" dialog window is dragged
-$('.stable').on('dialogdragstop', function (event, ui) {
+$('.stable').on('dialogdragstop', (event, ui) => {
   sessionStorage.setItem(this.id, [ui.offset.left, ui.offset.top]);
 });
 
 // restore saved dialog position on "stable" dialog window open
-$('.stable').on('dialogopen', function (event, ui) {
+$('.stable').on('dialogopen', (event, ui) => {
   let pos = sessionStorage.getItem(this.id);
   if (!pos) {
     return;
@@ -919,7 +967,7 @@ $('#templateRun').on('click', () => {
       addMountain();
       continue;
     }
-    let count = $(`#templateBody div:nth-child(${step }) .templateElCount`).val();
+    let count = $(`#templateBody div:nth-child(${step}) .templateElCount`).val();
     const dist = $(`#templateBody div:nth-child(${step}) .templateElDist`).val();
     if (count) {
       if (count[0] !== '-' && count.includes('-')) {
@@ -965,8 +1013,8 @@ $('#templateSave').on('click', () => {
   for (let step = 1; step <= steps; step++) {
     const element = $(`#templateBody div:nth-child(${step})`);
     const type = element.attr('data-type');
-    let count = $(`#templateBody div:nth-child(${ step}) .templateElCount`).val();
-    let dist = $(`#templateBody div:nth-child(${ step}) .templateElDist`).val();
+    let count = $(`#templateBody div:nth-child(${step}) .templateElCount`).val();
+    let dist = $(`#templateBody div:nth-child(${step}) .templateElDist`).val();
     if (!count) {
       count = '0';
     }
@@ -990,7 +1038,7 @@ $('#templateSave').on('click', () => {
 $('#templateLoad').on('click', () => {
   templateToLoad.click();
 });
-$('#templateToLoad').change(function () {
+$('#templateToLoad').change(() => {
   const fileToLoad = this.files[0];
   this.value = '';
   const fileReader = new FileReader();
@@ -1014,7 +1062,7 @@ $('#templateToLoad').change(function () {
 $('#convertImageLoad').on('click', () => {
   imageToLoad.click();
 });
-$('#imageToLoad').change(function () {
+$('#imageToLoad').change(() => {
   console.time('loadImage');
   // set style
   resetZoom();
@@ -1037,7 +1085,7 @@ $('#imageToLoad').change(function () {
 });
 
 // templateSelect on change listener
-$('#templateSelect').on('input', function () {
+$('#templateSelect').on('input', () => {
   const steps = $('#templateBody > div').length;
   const changed = +$('#templateBody').attr('data-changed');
   const template = this.value;
@@ -1112,15 +1160,7 @@ $('#templateTools > button').on('click', () => {
   $('#templateBody').attr('data-changed', 1);
 });
 
-// fireTemplateElDist selector handlers
-function fireTemplateElDist() {
-  if (this.value === 'interval') {
-    const interval = prompt('Populate a height interval (e.g. from 17 to 20), without space, but with hyphen', '17-20');
-    if (interval) {
-      const option = `<option value="${interval}">${interval}</option>`;
-      $(this).append(option).val(interval);
-    }
-  }
-}
-
-export default fireTemplateElDist;
+export {
+  fireTemplateElDist,
+  elementDrag
+};

@@ -1,3 +1,28 @@
+import $ from 'jquery';
+import * as d3 from 'd3';
+import * as C from './Const';
+import * as Toggle from './Toggles';
+
+// TODO: STORE IN STATE
+// apply default names data
+function applyDefaultNamesData() {
+  const nameBase = C.nameBase;
+  const nameBases = C.nameBases;
+  const defaultCultures = C.defaultCultures;
+  return {nameBase, nameBases, defaultCultures};
+}
+// apply names data from localStorage if available
+function applyNamesData() {
+  applyDefaultNamesData();
+}
+
+// round value to d decimals
+function rn(v, d) {
+  d = d || 0;
+  const m = Math.pow(10, d);
+  return Math.round(v * m) / m;
+}
+
 // convert RGB color string to HEX without #
 function toHEX(rgb) {
   if (rgb.charAt(0) === '#') {
@@ -5,9 +30,9 @@ function toHEX(rgb) {
   }
   rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
   return (rgb && rgb.length === 4) ? `#${
-      (`0${parseInt(rgb[1], 10).toString(16)}`).slice(-2)
-    }${(`0${ parseInt(rgb[2], 10).toString(16)}`).slice(-2)
-    }${(`0${parseInt(rgb[3], 10).toString(16)}`).slice(-2)}` : '';
+    (`0${parseInt(rgb[1], 10).toString(16)}`).slice(-2)
+  }${(`0${parseInt(rgb[2], 10).toString(16)}`).slice(-2)
+  }${(`0${parseInt(rgb[3], 10).toString(16)}`).slice(-2)}` : '';
 }
 
 // random number in a range
@@ -24,7 +49,7 @@ function rand(min, max) {
 
 // round string to d decimals
 function round(s, d) {
-  var d = d || 1;
+  d = d || 1;
   return s.replace(/[\d\.-][\d\.e-]*/g, (n) => rn(n, d));
 }
 
@@ -66,10 +91,13 @@ function getInteger(value) {
 // downalod map as SVG or PNG file
 function saveAsImage(type) {
   console.time('saveAsImage');
-  const webSafe = ['Georgia', 'Times+New+Roman', 'Comic+Sans+MS', 'Lucida+Sans+Unicode', 'Courier+New', 'Verdana', 'Arial', 'Impact'];
+  const webSafe = [
+    'Georgia', 'Times+New+Roman', 'Comic+Sans+MS', 'Lucida+Sans+Unicode', 'Courier+New', 'Verdana',
+    'Arial', 'Impact'
+  ];
   // get non-standard fonts used for labels to fetch them from web
   const fontsInUse = []; // to store fonts currently in use
-  labels.selectAll('g').each(function (d) {
+  C.labels.selectAll('g').each(() => {
     const font = d3.select(this).attr('data-font');
     if (!font) {
       return;
@@ -91,16 +119,16 @@ function saveAsImage(type) {
 
   // rteset transform for svg
   if (type === 'svg') {
-    clone.attr('width', graphWidth).attr('height', graphHeight);
+    clone.attr('width', C.graphWidth).attr('height', C.graphHeight);
     clone.select('#viewbox').attr('transform', null);
-    if (svgWidth !== graphWidth || svgHeight !== graphHeight) {
+    if (C.svgWidth !== C.graphWidth || C.svgHeight !== C.graphHeight) {
       // move scale bar to right bottom corner
       const el = clone.select('#scaleBar');
       if (!el.size()) {
         return;
       }
       const bbox = el.select('rect').node().getBBox();
-      const tr = [graphWidth - bbox.width, graphHeight - (bbox.height - 10)];
+      const tr = [C.graphWidth - bbox.width, C.graphHeight - (bbox.height - 10)];
       el.attr('transform', `translate(${rn(tr[0])},${rn(tr[1])})`);
     }
 
@@ -263,9 +291,9 @@ function saveMap() {
   const license = 'File can be loaded in azgaar.github.io/Fantasy-Map-Generator';
   const params = `${version}|${license}|${dateString}|${seed}`;
   const options = `${customization}|${
-      distanceUnit.value}|${distanceScale.value}|${areaUnit.value}|${
-      barSize.value}|${barLabel.value}|${barBackOpacity.value}|${barBackColor.value}|${
-      populationRate.value}|${urbanization.value}`;
+    distanceUnit.value}|${distanceScale.value}|${areaUnit.value}|${
+    barSize.value}|${barLabel.value}|${barBackOpacity.value}|${barBackColor.value}|${
+    populationRate.value}|${urbanization.value}`;
 
   // set zoom / transform values to default
   svg.attr('width', graphWidth).attr('height', graphHeight);
@@ -325,16 +353,16 @@ function convertImage() {
     return;
   }
   $('#imageConverter').dialog({
-      title: 'Image to Heightmap Converter',
-      minHeight: 30,
-      width: 260,
-      resizable: false,
-      position: {
-        my: 'right top',
-        at: 'right-10 top+10',
-        of: 'svg'
-      }
-    })
+    title: 'Image to Heightmap Converter',
+    minHeight: 30,
+    width: 260,
+    resizable: false,
+    position: {
+      my: 'right top',
+      at: 'right-10 top+10',
+      of: 'svg'
+    }
+  })
     .on('dialogclose', () => {
       completeConvertion();
     });
@@ -680,7 +708,7 @@ function applyLoadedData(data) {
     if (c.culture > cultures.length - 1) {
       const center = [c.data[0], c.data[1]];
       const cult = {
-        name: `AUTO_${ c.culture}`,
+        name: `AUTO_${c.culture}`,
         color: '#ff0000',
         base: 0,
         center
@@ -764,7 +792,7 @@ function applyLoadedData(data) {
     }
     const font = el.attr('data-font');
     if (font && fonts.indexOf(font) === -1) {
-      addFonts(`https://fonts.googleapis.com/css?family=${ font}`);
+      addFonts(`https://fonts.googleapis.com/css?family=${font}`);
     }
     if (!el.attr('data-size')) {
       el.attr('data-size', +el.attr('font-size'));
@@ -881,10 +909,10 @@ function cleanData() {
   });
   // restore layers if they was turned on
   if (!$('#toggleHeight').hasClass('buttonoff') && !terrs.selectAll('path').size()) {
-    toggleHeight();
+    Toggle.height();
   }
   if (!$('#toggleCultures').hasClass('buttonoff') && !cults.selectAll('path').size()) {
-    toggleCultures();
+    Toggle.cultures();
   }
   closeDialogs();
   invokeActiveZooming();
@@ -1010,7 +1038,7 @@ function detectNeighbors(withGrid) {
     const neighbors = [];
     let type; // define cell type
     if (withGrid) {
-      gridPath += `M${ i.join('L') }Z`;
+      gridPath += `M${i.join('L')}Z`;
     } // grid path
     diagram.cells[d].halfedges.forEach((e) => {
       const edge = diagram.edges[e];
@@ -1166,7 +1194,7 @@ function reGraph() {
       const ea = edge.left.index === d ? edge.right.index : edge.left.index;
       neighbors.push(ea);
       if (d < ea && i.height >= 20 && i.lake !== 1 && cells[ea].height >= 20 && cells[ea].lake !== 1) {
-        gridPath += `M${  edge[0][0]  },${  edge[0][1]  }L${  edge[1][0]  },${  edge[1][1]}`;
+        gridPath += `M${edge[0][0]},${edge[0][1]}L${edge[1][0]},${edge[1][1]}`;
       }
     });
     i.neighbors = neighbors;
@@ -1192,13 +1220,6 @@ function disruptHeights() {
     }
     heights[i] += 2 - Math.random() * 4;
   }
-}
-
-// round value to d decimals
-function rn(v, d) {
-  d = d || 0;
-  const m = Math.pow(10, d);
-  return Math.round(v * m) / m;
 }
 
 // fit ScaleBar to map size
@@ -1228,6 +1249,15 @@ function moveLayer(event, ui) {
       el.insertBefore(next);
     }
   }
+}
+
+// transform string to array [translateX,translateY,rotateDeg,rotateX,rotateY,scale]
+function parseTransform(string) {
+  if (!string) {
+    return [0, 0, 0, 0, 0, 1];
+  }
+  const a = string.replace(/[a-z()]/g, '').replace(/[ ]/g, ',').split(',');
+  return [a[0] || 0, a[1] || 0, a[2] || 0, a[3] || 0, a[4] || 0, a[5] || 1];
 }
 
 // define connection between option layer buttons and actual svg groups
@@ -1325,6 +1355,56 @@ function changeSeed() {
   Math.seedrandom(seed);
 }
 
+function opisometerEdgeDrag() {
+  const el = d3.select(this);
+  const x0 = +el.attr('cx'),
+    y0 = +el.attr('cy');
+  const group = d3.select(this.parentNode);
+  const curve = group.select('.white');
+  const curveGray = group.select('.gray');
+  const text = group.select('text');
+  const points = JSON.parse(text.attr('data-points'));
+  if (x0 === points[0].scX && y0 === points[0].scY) {
+    points.reverse();
+  }
+
+  d3.event.on('drag', () => {
+    const x = d3.event.x,
+      y = d3.event.y;
+    el.attr('cx', x).attr('cy', y);
+    const l = points[points.length - 1];
+    const diff = Math.hypot(l.scX - x, l.scY - y);
+    if (diff > 5) {
+      points.push({
+        scX: x,
+        scY: y
+      });
+    } else {
+      return;
+    }
+    lineGen.curve(d3.curveBasis);
+    const d = round(lineGen(points));
+    curve.attr('d', d);
+    curveGray.attr('d', d);
+    const dist = rn(curve.node().getTotalLength());
+    const label = `${rn(dist * distanceScale.value)} ${distanceUnit.value}`;
+    text.attr('x', x).attr('y', y).text(label);
+  });
+
+  d3.event.on('end', () => {
+    const dist = rn(curve.node().getTotalLength());
+    const c = curve.node().getPointAtLength(dist / 2);
+    const p = curve.node().getPointAtLength((dist / 2) - 1);
+    const label = `${rn(dist * distanceScale.value)} ${distanceUnit.value}`;
+    const atan = p.x > c.x ? Math.atan2(p.y - c.y, p.x - c.x) : Math.atan2(c.y - p.y, c.x - p.x);
+    const angle = rn(atan * 180 / Math.PI, 3);
+    const tr = `rotate(${angle} ${c.x} ${c.y})`;
+    text.attr('data-points', JSON.stringify(points)).attr('data-dist', dist).attr('x', c.x).attr('y', c.y)
+      .attr('transform', tr)
+      .text(label);
+  });
+}
+
 export {
   toHEX,
   rand,
@@ -1357,5 +1437,9 @@ export {
   moveLayer,
   getLayer,
   addDragToUpload,
-  changeSeed
-}
+  changeSeed,
+  applyNamesData,
+  parseTransform,
+  opisometerEdgeDrag
+};
+

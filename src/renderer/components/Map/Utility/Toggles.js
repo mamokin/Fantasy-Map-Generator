@@ -1,3 +1,11 @@
+import $ from 'jquery';
+import * as d3 from 'd3';
+import * as C from './Const';
+
+const labelGroupInput = C.labelGroupInput;
+const labelFontInput = C.labelFontInput;
+const styleSchemeInput = C.styleSchemeInput;
+
 // toggle inputs to declare a new group
 document.getElementById('labelGroupNew').addEventListener('click', () => {
   if ($('#labelGroupInput').css('display') === 'none') {
@@ -23,7 +31,7 @@ document.getElementById('labelExternalFont').addEventListener('click', () => {
 });
 
 // draw the Heightmap
-function toggleHeight() {
+function height() {
   const scheme = styleSchemeInput.value;
   let hColor = color;
   if (scheme === 'light') {
@@ -58,7 +66,7 @@ function toggleHeight() {
       }
       const clr = hColor((100 - height) / 100);
       terrs.append('path')
-        .attr('d', `M${ polygons[d].join('L')}Z`)
+        .attr('d', `M${polygons[d].join('L')}Z`)
         .attr('fill', clr).attr('stroke', clr);
     });
   } else {
@@ -67,12 +75,12 @@ function toggleHeight() {
 }
 
 // draw Cultures
-function toggleCultures() {
+function cultures() {
   if (cults.selectAll('path').size() == 0) {
     land.map((i) => {
       const color = cultures[i.culture].color;
       cults.append('path')
-        .attr('d', `M${polygons[i.index].join('L') }Z`)
+        .attr('d', `M${polygons[i.index].join('L')}Z`)
         .attr('id', `cult${i.index}`)
         .attr('fill', color)
         .attr('stroke', color);
@@ -83,14 +91,14 @@ function toggleCultures() {
 }
 
 // draw Overlay
-function toggleOverlay() {
+function overlay() {
   if (overlay.selectAll('*').size() === 0) {
     const type = styleOverlayType.value;
     const size = +styleOverlaySize.value;
     if (type === 'pointyHex' || type === 'flatHex') {
       const points = getHexGridPoints(size, type);
       const hex = `m${getHex(size, type).slice(0, 4).join('l')}`;
-      const d = points.map((p) => `M${  p  }${hex}`).join('');
+      const d = points.map((p) => `M${p}${hex}`).join('');
       overlay.append('path').attr('d', d);
     } else if (type === 'square') {
       const x = d3.range(size, svgWidth, size);
@@ -120,12 +128,12 @@ function toggleOverlay() {
 }
 
 // Draw the water flux system (for dubugging)
-function toggleFlux() {
+function flux() {
   const colorFlux = d3.scaleSequential(d3.interpolateBlues);
   if (terrs.selectAll('path').size() == 0) {
     land.map((i) => {
       terrs.append('path')
-        .attr('d', `M${polygons[i.index].join('L') }Z`)
+        .attr('d', `M${polygons[i.index].join('L')}Z`)
         .attr('fill', colorFlux(0.1 + i.flux))
         .attr('stroke', colorFlux(0.1 + i.flux));
     });
@@ -133,3 +141,10 @@ function toggleFlux() {
     terrs.selectAll('path').remove();
   }
 }
+
+export {
+  height,
+  cultures,
+  overlay,
+  flux
+};

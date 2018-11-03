@@ -51,11 +51,29 @@ const transparencyInput = getById('transparencyInput');
 const transparencyOutput = getById('transparencyOutput');
 const manorsOutput = getById('manorsOutput');
 const brushPower = getById('brushPower');
+const brushRadius = getById('brushRadius');
 const renderOcean = getById('renderOcean');
 const countriesManuallyBrush = getById('countriesManuallyBrush');
 const culturesManuallyBrush = getById('culturesManuallyBrush');
 
+// D3 drag and zoom behavior
+const scale = 1;
+const viewX = 0;
+const viewY = 0;
+
+const graphWidth = +mapWidthInput.value; // voronoi graph extention, should be stable for each map
+const graphHeight = +mapHeightInput.value;
+const svgWidth = graphWidth;
+const svgHeight = graphHeight; // svg canvas resolution, can vary for each map
+
 export {
+  scale,
+  viewX,
+  viewY,
+  graphWidth,
+  graphHeight,
+  svgWidth,
+  svgHeight,
   canvas,
   ctx,
   hideLabels,
@@ -101,6 +119,7 @@ export {
   transparencyInput,
   transparencyOutput,
   brushPower,
+  brushRadius,
   renderOcean,
   countriesManuallyBrush,
   culturesManuallyBrush
