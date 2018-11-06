@@ -20,6 +20,7 @@ The boilerplate for making electron applications built with vue (pretty much wha
   <summary>
     Powered with Vuex + Electron (Open for more info)
   </summary>
+  
   ## Boilerplate Overview
   The aim of this project is to remove the need of manually setting up electron apps using vue. electron-vue takes advantage of `vue-cli` for scaffolding, `webpack` with `vue-loader`, `electron-packager` or `electron-builder`, and some of the most used plugins like `vue-router`, `vuex`, and so much more.
 
