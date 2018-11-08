@@ -55,6 +55,8 @@ const brushRadius = getById('brushRadius');
 const renderOcean = getById('renderOcean');
 const countriesManuallyBrush = getById('countriesManuallyBrush');
 const culturesManuallyBrush = getById('culturesManuallyBrush');
+const areaUnit = getById('areaUnit');
+const alertMessage = getById('alertMessage');
 
 // D3 drag and zoom behavior
 const scale = 1;
@@ -122,5 +124,7 @@ export {
   brushRadius,
   renderOcean,
   countriesManuallyBrush,
-  culturesManuallyBrush
+  culturesManuallyBrush,
+  areaUnit,
+  alertMessage
 };

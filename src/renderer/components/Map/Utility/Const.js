@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as UI from './UI';
 
 // Version control
 const version = '0.60b';
@@ -35,6 +36,10 @@ const burgIcons = icons.append('g').attr('id', 'burgIcons');
 const markers = viewbox.append('g').attr('id', 'markers');
 const ruler = viewbox.append('g').attr('id', 'ruler');
 const debug = viewbox.append('g').attr('id', 'debug');
+const rulerNew = ruler
+  .append('g')
+  .attr('class', 'linear')
+  .call(d3.drag().on('start', UI.elementDrag));
 const fonts = [
   'Almendra+SC',
   'Georgia',
@@ -4434,6 +4439,7 @@ export {
   burgIcons,
   markers,
   ruler,
+  rulerNew,
   debug,
   fonts,
   defaultCultures,

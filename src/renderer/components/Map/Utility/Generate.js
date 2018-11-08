@@ -971,6 +971,41 @@ function generate() {
   console.groupEnd('Random map');
 }
 
+// get square grid with some jirrering
+function getJitteredGrid() {
+  const sizeMod = rn((graphWidth + graphHeight) / 1500, 2); // screen size modifier
+  spacing = rn(7.5 * sizeMod / graphSize, 2); // space between points before jirrering
+  const radius = spacing / 2; // square radius
+  const jittering = radius * 0.9; // max deviation
+  const jitter = function () {
+    return Math.random() * 2 * jittering - jittering;
+  };
+  const points = [];
+  for (let y = radius; y < graphHeight; y += spacing) {
+    for (let x = radius; x < graphWidth; x += spacing) {
+      const xj = rn(x + jitter(), 2);
+      const yj = rn(y + jitter(), 2);
+      points.push([xj, yj]);
+    }
+  }
+  return points;
+}
+
+// get square grid cell index based on coords
+function getCellIndex(x, y) {
+  const index = diagram.find(x, y).index;
+  // let cellsX = Math.round(graphWidth / spacing);
+  // let index = Math.ceil(y / spacing) * cellsX + Math.round(x / spacing);
+  return index;
+}
+
+function transformPt(pt) {
+  const width = 320,
+    maxHeight = 0.2;
+  const [x, y] = projectIsometric(pt[0], pt[1]);
+  return [x + width / 2 + 10, y + 10 - pt[2] * maxHeight];
+}
+
 export {
   generateMainRoads,
   generatePortRoads,
@@ -979,5 +1014,8 @@ export {
   generateStateName,
   drawRiverSlow,
   drawRiverLines,
-  generate
+  generate,
+  getJitteredGrid,
+  getCellIndex,
+  transformPt
 }
