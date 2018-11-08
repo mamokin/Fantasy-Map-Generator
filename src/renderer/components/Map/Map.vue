@@ -1267,14 +1267,16 @@
 </template>
 
 <script>
-  import '../../libs/jquery-3.1.1.min.js';
-  import '../../libs/d3.v4.min.js"';
-  import '../../libs/d3-scale-chromatic.v1.min.js';
-  import '../../libs/priority-queue.min.js';
-  import '../../libs/jquery-ui.min.js';
-  import '../../libs/polylabel.min.js';
-  import '../../libs/quantize.min.js';
-  import '../../libs/jquery.ui.touch-punch.min.js';
+  // import '../../libs/jquery-3.1.1.min.js';
+  // import '../../libs/d3.js"';
+  // import * as d3 from "d3";
+  // import '../../libs/d3-scale-chromatic.v1.min.js';
+  // import '../../libs/priority-queue.min.js';
+  // import '../../libs/jquery-ui.min.js';
+  // import '../../libs/polylabel.min.js';
+  // import '../../libs/quantize.min.js';
+  // import '../../libs/jquery.ui.touch-punch.min.js';
+  import './script.js';
   import '../../assets/icons.css';
   import '../../libs/jquery-ui.css';
   import './map.css';
