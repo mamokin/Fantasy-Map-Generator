@@ -24,8 +24,8 @@ function focusBurgs() {
   const s = +(this.parentNode.id).slice(5);
   const stateManors = $.grep(manors, (e) => (e.region === s));
   stateManors.map((m) => {
-    labels.select(`[data-id='${ m.i}']`).classed('drag', true);
-    icons.select(`[data-id='${m.i }']`).classed('drag', true);
+    labels.select(`[data-id='${m.i}']`).classed('drag', true);
+    icons.select(`[data-id='${m.i}']`).classed('drag', true);
   });
 }
 

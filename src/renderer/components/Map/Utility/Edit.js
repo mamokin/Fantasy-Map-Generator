@@ -71,7 +71,7 @@ function editLabel() {
     }
     let group = this.value.toLowerCase().replace(/ /g, '_').replace(/[^\w\s]/gi, '');
     if (Number.isFinite(+group.charAt(0))) {
-      group = `g${ group}`;
+      group = `g${group}`;
     }
     // if el with this id exists, add size to id
     while (labels.selectAll(`#${group}`).size()) {
@@ -293,7 +293,7 @@ function editLabel() {
     elSelected.text();
     elSelected.attr('x', x).attr('y', y).attr('data-x', null).attr('data-y', null)
       .text(text);
-    defs.select(`#textPath_${ elSelected.attr('id')}`).remove();
+    defs.select(`#textPath_${elSelected.attr('id')}`).remove();
     debug.select('circle').remove();
   });
 
@@ -313,7 +313,7 @@ function editLabel() {
     const shift = +group.attr('font-size') + 1;
     if (copy.select('textPath').size()) {
       const path = defs.select(`#textPath_${elSelected.attr('id')}`).attr('d');
-      const textPath = defs.append('path').attr('id', `textPath_${ id}`);
+      const textPath = defs.append('path').attr('id', `textPath_${id}`);
       copy.select('textPath').attr('href', `#textPath_${id}`);
       const pathArray = path.split(' ');
       const x = +pathArray[0].split(',')[0].slice(1);
@@ -341,7 +341,7 @@ function editLabel() {
         Remove() {
           $(this).dialog('close');
           elSelected.remove();
-          defs.select(`#textPath_${  elSelected.attr('id')}`).remove();
+          defs.select(`#textPath_${elSelected.attr('id')}`).remove();
           $('#labelEditor').dialog('close');
         },
         Cancel() {
@@ -1091,7 +1091,7 @@ function editIcon() {
     copy.removeAttribute('data-id'); // remove assignment to burg if any
     const tr = parseTransform(copy.getAttribute('transform'));
     const shift = 10 / Math.sqrt(scale);
-    let transform = `translate(${ rn(tr[0] - shift, 1)},${ rn(tr[1] - shift, 1)})`;
+    let transform = `translate(${rn(tr[0] - shift, 1)},${rn(tr[1] - shift, 1)})`;
     for (let i = 2; group.selectAll(`[transform='${transform}']`).size() > 0; i++) {
       transform = `translate(${rn(tr[0] - shift * i, 1)},${rn(tr[1] - shift * i, 1)})`;
     }
@@ -1108,7 +1108,7 @@ function editIcon() {
       $('#labelEditor').dialog('close');
       return;
     }
-    const message = `Are you sure you want to remove all '${ iconGroup.value}' icons (${ count })?`;
+    const message = `Are you sure you want to remove all '${iconGroup.value}' icons (${count})?`;
     alertMessage.innerHTML = message;
     $('#alert').dialog({
       resizable: false,
@@ -1240,9 +1240,9 @@ function editReliefIcon() {
     const copy = elSelected.node().cloneNode(true);
     const tr = parseTransform(copy.getAttribute('transform'));
     const shift = 10 / Math.sqrt(scale);
-    let transform = `translate(${ rn(tr[0] - shift, 1) },${ rn(tr[1] - shift, 1) })`;
-    for (let i = 2; group.selectAll(`[transform='${ transform}']`).size() > 0; i++) {
-      transform = `translate(${rn(tr[0] - shift * i, 1) },${rn(tr[1] - shift * i, 1) })`;
+    let transform = `translate(${rn(tr[0] - shift, 1)},${rn(tr[1] - shift, 1)})`;
+    for (let i = 2; group.selectAll(`[transform='${transform}']`).size() > 0; i++) {
+      transform = `translate(${rn(tr[0] - shift * i, 1)},${rn(tr[1] - shift * i, 1)})`;
     }
     copy.setAttribute('transform', transform);
     group.node().insertBefore(copy, null);
@@ -1262,7 +1262,7 @@ function editReliefIcon() {
       $('#labelEditor').dialog('close');
       return;
     }
-    const message = `Are you sure you want to remove all '${reliefGroup.value}' icons (${ count })?`;
+    const message = `Are you sure you want to remove all '${reliefGroup.value}' icons (${count})?`;
     alertMessage.innerHTML = message;
     $('#alert').dialog({
       resizable: false,
@@ -1312,7 +1312,7 @@ function editReliefIcon() {
       return;
     }
     selection.map((index) => {
-      const selected = terrain.selectAll('g').selectAll(`g[data-cell='${index }']`);
+      const selected = terrain.selectAll('g').selectAll(`g[data-cell='${index}']`);
       selected.remove();
     });
   }
@@ -1393,7 +1393,7 @@ function editBurg() {
       of: d3.event
     },
     close() {
-      d3.selectAll(`[data-id='${id }']`).call(d3.drag().on('drag', null)).classed('draggable', false);
+      d3.selectAll(`[data-id='${id}']`).call(d3.drag().on('drag', null)).classed('draggable', false);
       elSelected = null;
     }
   });
@@ -1510,9 +1510,9 @@ function editBurg() {
             manors[id].region = 'removed';
             cells[cell].manor = undefined;
           });
-          burgLabels.select(`#${  type}`).selectAll('*').remove();
-          burgIcons.select(`#${  type}`).selectAll('*').remove();
-          $(`#icons g[id*='anchors'] [data-id=${  id  }]`).parent().children().remove();
+          burgLabels.select(`#${type}`).selectAll('*').remove();
+          burgIcons.select(`#${type}`).selectAll('*').remove();
+          $(`#icons g[id*='anchors'] [data-id=${id}]`).parent().children().remove();
           closeDialogs('.stable');
           updateCountryEditors();
           $('#burgEditor').dialog('close');
@@ -1687,7 +1687,7 @@ function editBurg() {
         .attr('height', size)
         .on('click', editIcon);
     } else {
-      $(`#icons g[id*='anchors'] [data-id=${id }]`).remove();
+      $(`#icons g[id*='anchors'] [data-id=${id}]`).remove();
     }
   });
 
@@ -1811,7 +1811,7 @@ function editBurg() {
         Remove() {
           $(this).dialog('close');
           const id = +elSelected.attr('data-id');
-          d3.selectAll(`[data-id='${  id  }']`).remove();
+          d3.selectAll(`[data-id='${id}']`).remove();
           const cell = manors[id].cell;
           const state = manors[id].region;
           if (states[state]) {
@@ -1962,7 +1962,7 @@ function editMarker() {
 
   $('#markerRemoveGroup').click(() => {
     const id = elSelected.attr('href');
-    const used = document.querySelectorAll(`use[data-id='${ id }']`);
+    const used = document.querySelectorAll(`use[data-id='${id}']`);
     const count = used.length === 1 ? '1 element' : `${used.length} elements`;
     const message = `Are you sure you want to remove the marker (${count})?`;
     alertMessage.innerHTML = message;
@@ -2287,7 +2287,7 @@ function editMarker() {
     const id = elSelected.attr('id');
     const symbol = elSelected.attr('href');
     const icon = d3.select('#defs-markers').select(symbol).select('text').text();
-    const name = `Marker ${ icon}`;
+    const name = `Marker ${icon}`;
     editLegends(id, name);
   });
 
@@ -2345,7 +2345,7 @@ function editHeightmap(type) {
   } else {
     U.undraw();
   }
-  calculateVoronoi(points);
+  U.calculateVoronoi(points);
   detectNeighbors('grid');
   drawScaleBar();
   if (type === 'keep') {
@@ -2612,7 +2612,7 @@ function editCountries() {
         name,
         population
       });
-      burgIcons.select('#capitals').append('circle').attr('id', `burg${ i}`).attr('data-id', i)
+      burgIcons.select('#capitals').append('circle').attr('id', `burg${i}`).attr('data-id', i)
         .attr('cx', x)
         .attr('cy', y)
         .attr('r', 1)
@@ -2914,10 +2914,10 @@ function editBurgs(context, s) {
           const avPop = states[state].urbanPopulation / states[state].burgs * urbanization.value * populationRate.value * 1000;
           burgsFooterPopulation.value = rn(avPop, -1);
           if ($('#countriesEditor').is(':visible')) {
-            $(`#state${ state} > .stateBurgs`).text(states[state].burgs);
+            $(`#state${state} > .stateBurgs`).text(states[state].burgs);
           }
           labels.select(`[data-id='${b}']`).remove();
-          icons.select(`[data-id='${ b }']`).remove();
+          icons.select(`[data-id='${b}']`).remove();
         },
         Cancel() {
           $(this).dialog('close');
@@ -3245,7 +3245,7 @@ function editCultures() {
 
   $('#culturesExport').on('click', () => {
     const unit = areaUnit.value === 'square' ? `${distanceUnit.value}2` : areaUnit.value;
-    let data = `Culture,Cells,Area (${unit }),Population,Namesbase\n`; // headers
+    let data = `Culture,Cells,Area (${unit}),Population,Namesbase\n`; // headers
     $('#culturesBody > .cultures').each(function () {
       data += `${$(this).attr('data-culture')},`;
       data += `${$(this).attr('data-cells')},`;
@@ -3275,7 +3275,7 @@ function editCultures() {
       }
       const culture = m.culture;
       m.name = generateName(culture);
-      labels.select(`[data-id='${  m.i  }']`).text(m.name);
+      labels.select(`[data-id='${m.i}']`).text(m.name);
     });
   });
 
@@ -3487,7 +3487,7 @@ function editNamesbase() {
 
   $('#namesbaseAdd').on('click', () => {
     const base = nameBases.length;
-    const name = `Base${ base}`;
+    const name = `Base${base}`;
     const method = document.getElementById('namesbaseMethod').value;
     const select = document.getElementById('namesbaseSelect');
     select.options.add(new Option(name, base));
@@ -3701,7 +3701,7 @@ function editLegends(id, name) {
     });
     const url = window.URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
-    link.download = `legends${ Date.now() }.txt`;
+    link.download = `legends${Date.now()}.txt`;
     link.href = url;
     link.click();
   });
@@ -3808,4 +3808,4 @@ export {
   editRiver,
   editRoute,
   editScale
-}
+};

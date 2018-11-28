@@ -110,7 +110,7 @@ function fantasyMap() {
   // let land = [];
   // let riversData = [];
   // let manors = [];
-  const states = [];
+  let states = [];
   const features = [];
   // const notes = [];
   // const fonts = C.fonts;
@@ -140,9 +140,6 @@ function fantasyMap() {
   const graphHeight = DOM.graphHeight;
   const svgWidth = DOM.svgWidth;
   const svgHeight = DOM.svgHeight; // svg canvas resolution, can vary for each map
-
-  // D3 Line generator variables
-  // const lineGen = d3.line().x((d) => d.scX).y((d) => d.scY).curve(d3.curveCatmullRom);
 
   U.addDragToUpload();
 

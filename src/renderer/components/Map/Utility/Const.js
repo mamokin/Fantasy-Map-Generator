@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import * as UI from './UI';
+import * as DOM from './DOMVariables';
 
 // Version control
 const version = '0.60b';
@@ -4408,6 +4409,13 @@ const nameBases = [ // min; max; mean; common
   } // real: 2; 15; 6.8; 6
 ];
 
+const voronoi = d3.voronoi().extent([
+  [-1, -1],
+  [DOM.graphWidth + 1, DOM.graphHeight + 1]
+]);
+// D3 Line generator variables
+const lineGen = d3.line().x((d) => d.scX).y((d) => d.scY).curve(d3.curveCatmullRom);
+
 export {
   version,
   svg,
@@ -4444,5 +4452,7 @@ export {
   fonts,
   defaultCultures,
   nameBase,
-  nameBases
+  nameBases,
+  voronoi,
+  lineGen
 };

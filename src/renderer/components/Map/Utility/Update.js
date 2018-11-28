@@ -218,4 +218,4 @@ export {
   labelGroups,
   cellsInRadius,
   history
-}
+};

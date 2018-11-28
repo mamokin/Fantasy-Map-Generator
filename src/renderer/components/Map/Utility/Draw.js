@@ -572,4 +572,4 @@ export {
   redrawRegions,
   drawManors,
   drawScaleBar
-}
+};

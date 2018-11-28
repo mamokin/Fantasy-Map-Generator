@@ -1,3 +1,19 @@
+import $ from 'jquery';
+import {manorsAndRegions} from '../Civilization';
+import {defineHeightmap} from '../Height';
+import {addLakes, elevateLakes} from '../Lake';
+import {ocean, viewbox, svg, oceanLayers, lineGen} from './Const';
+import {graphHeight, graphWidth, svgWidth, mapWidthInput, mapHeightInput, svgHeight, outlineLayersInput} from './DOMVariables';
+import {drawRelief, drawScaleBar} from './Draw';
+import {projectIsometric} from './UI';
+import {calculateVoronoi, cleanData, detectNeighbors, placePoints, randomizeOptions, reGraph, resolveDepressionsPrimary, resolveDepressionsSecondary, rn, getContinuousLine, manors} from './Utils';
+import {zoom, curveBasis} from '../../../libs/d3';
+
+// Variables that need to be passed into functions:
+/*
+  states
+*/
+
 function generateMainRoads() {
   console.time('generateMainRoads');
   lineGen.curve(d3.curveBasis);
@@ -862,7 +878,7 @@ function drawOcean() {
         }
       });
     }
-    lineGen.curve(d3.curveBasis);
+    lineGen.curve(curveBasis);
     let relax = 0.8 - l / 10;
     if (relax < 0.2) {
       relax = 0.2;
@@ -879,10 +895,10 @@ function applyMapSize() {
   svgHeight = graphHeight = +mapHeightInput.value;
   svg.attr('width', svgWidth).attr('height', svgHeight);
   // set extent to map borders + 100px to get infinity world reception
-  voronoi = d3.voronoi().extent([
-    [-1, -1],
-    [graphWidth + 1, graphHeight + 1]
-  ]);
+  // voronoi = d3.voronoi().extent([
+  //   [-1, -1],
+  //   [graphWidth + 1, graphHeight + 1]
+  // ]);
   zoom.translateExtent([
     [0, 0],
     [graphWidth, graphHeight]
@@ -977,9 +993,7 @@ function getJitteredGrid() {
   spacing = rn(7.5 * sizeMod / graphSize, 2); // space between points before jirrering
   const radius = spacing / 2; // square radius
   const jittering = radius * 0.9; // max deviation
-  const jitter = function () {
-    return Math.random() * 2 * jittering - jittering;
-  };
+  const jitter = () => Math.random() * 2 * jittering - jittering;
   const points = [];
   for (let y = radius; y < graphHeight; y += spacing) {
     for (let x = radius; x < graphWidth; x += spacing) {
@@ -1000,22 +1014,11 @@ function getCellIndex(x, y) {
 }
 
 function transformPt(pt) {
-  const width = 320,
-    maxHeight = 0.2;
+  const width = 320;
+  const maxHeight = 0.2;
   const [x, y] = projectIsometric(pt[0], pt[1]);
   return [x + width / 2 + 10, y + 10 - pt[2] * maxHeight];
 }
 
-export {
-  generateMainRoads,
-  generatePortRoads,
-  generateSmallRoads,
-  generateOceanRoutes,
-  generateStateName,
-  drawRiverSlow,
-  drawRiverLines,
-  generate,
-  getJitteredGrid,
-  getCellIndex,
-  transformPt
-}
+export {generateMainRoads, generatePortRoads, generateSmallRoads, generateOceanRoutes, generateStateName, drawRiverSlow, drawRiverLines, generate, getJitteredGrid, getCellIndex, transformPt};
+

@@ -1,14 +1,30 @@
+import * as DOM from './Utility/DOMVariables';
+
+const [
+  graphWidth,
+  graphHeight
+] = [
+  DOM.graphWidth,
+  DOM.graphHeight
+];
+
+
 function addStrait(width) {
   const session = Math.ceil(Math.random() * 100000);
-  const top = Math.floor(Math.random() * graphWidth * 0.35 + graphWidth * 0.3);
-  const bottom = Math.floor((graphWidth - top) - (graphWidth * 0.1) + (Math.random() * graphWidth * 0.2));
+  const top = Math.floor((Math.random() * graphWidth * 0.35) + (graphWidth * 0.3));
+  const bottom = Math.floor((graphWidth - top) -
+    ((graphWidth * 0.1) +
+    (Math.random() * graphWidth * 0.2)));
   let start = diagram.find(top, graphHeight * 0.1).index;
   const end = diagram.find(bottom, graphHeight * 0.9).index;
   let range = [];
   for (let l = 0; start !== end && l < 1000; l++) {
     let min = 10000; // dummy value
     cells[start].neighbors.forEach((e) => {
-      let diff = Math.hypot(cells[end].data[0] - cells[e].data[0], cells[end].data[1] - cells[e].data[1]);
+      let diff = Math.hypot(
+        cells[end].data[0] - cells[e].data[0],
+        cells[end].data[1] - cells[e].data[1]
+      );
       if (Math.random() > 0.8) {
         diff = diff / 2;
       }

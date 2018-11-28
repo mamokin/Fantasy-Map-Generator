@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 import * as C from './Const';
 import * as Toggle from './Toggles';
 
+let manors = [];
+
 // TODO: STORE IN STATE
 // apply default names data
 function applyDefaultNamesData() {
@@ -495,10 +497,10 @@ function loadDataFromMap(data) {
     nHeight = +svg.attr('height');
   graphWidth = nWidth;
   graphHeight = nHeight;
-  voronoi = d3.voronoi().extent([
-    [-1, -1],
-    [graphWidth + 1, graphHeight + 1]
-  ]);
+  // voronoi = d3.voronoi().extent([
+  //   [-1, -1],
+  //   [graphWidth + 1, graphHeight + 1]
+  // ]);
   zoom.translateExtent([
     [0, 0],
     [graphWidth, graphHeight]
@@ -977,7 +979,7 @@ function calculateChain(c) {
 // Calculate Voronoi Diagram
 function calculateVoronoi(points) {
   console.time('calculateVoronoi');
-  diagram = voronoi(points);
+  diagram = d3.voronoi(points);
   // round edges to simplify future calculations
   diagram.edges.forEach((e) => {
     e[0][0] = rn(e[0][0], 2);
@@ -997,7 +999,7 @@ function randomizeOptions() {
     regionsInput.value = regionsOutput.value = rand(7, 17);
   }
   if (lockManorsInput.getAttribute('data-locked') == 0) {
-    const manors = regionsInput.value * 20 + rand(180 * mod);
+    manors = regionsInput.value * 20 + rand(180 * mod);
     manorsInput.value = manorsOutput.innerHTML = manors;
   }
   if (lockPowerInput.getAttribute('data-locked') == 0) {
@@ -2688,6 +2690,7 @@ export {
   landmassClicked,
   sortAssignedColors,
   autoAssing,
-  completeConvertion
+  completeConvertion,
+  manors
 };
 
