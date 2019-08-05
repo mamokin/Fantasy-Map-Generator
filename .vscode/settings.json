@@ -5,7 +5,7 @@
     "terminal.integrated.fontSize": 15,
     "explorer.confirmDelete": false,
     "editor.rulers": [
-        100
+        200
     ],
     "editor.minimap.enabled": false,
     "editor.wordWrap": "off",
