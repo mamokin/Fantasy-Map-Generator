@@ -67,6 +67,8 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^8.1.0",
+    "@commitlint/config-conventional": "^8.1.0",
     "ajv": "^6.5.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
@@ -137,22 +139,19 @@
   },
   "husky": {
     "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "prepare-commit-msg": "exec < /dev/tty && git cz --hook"
-    },
-    "lint-staged": {
-      "linters": {
-        "src/**/*.{js,jsx}": [
-          "eslint --fix",
-          "git add"
-        ],
-        "src/**/*.scss": [
-          "stylelint --fix",
-          "git add"
-        ]
-      },
-      "ignore": [
-        "**/dist/*.min.js"
-      ]
     }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "src/**/*.scss": [
+      "stylelint --fix",
+      "git add"
+    ]
   }
 }
