@@ -28,7 +28,7 @@ import $ from 'jquery';
 import {fantasyMap} from './FantasyMap';
 import {tooltip} from './Utility/DOMVariables';
 
-function tip(tip, main, error) {
+export default function tip(tip, main, error) {
   const tooltip = d3.select('#tooltip');
   const reg = 'linear-gradient(0.1turn, #ffffff00, #5e5c5c4d, #ffffff00)';
   const red = 'linear-gradient(0.1turn, #ffffff00, #c71d1d66, #ffffff00)';

@@ -177,3 +177,15 @@ function changeTemplate(template) {
   }
   $('#templateBody').attr('data-changed', 0);
 }
+
+export {
+  templateVolcano,
+  templateHighIsland,
+  templateLowIsland,
+  templateContinents,
+  templateArchipelago,
+  templateAtoll,
+  templateMainland,
+  templatePeninsulas,
+  changeTemplate
+};

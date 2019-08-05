@@ -1,15 +1,25 @@
 import $ from 'jquery';
+import {zoom} from '../../libs/d3';
 import * as d3 from 'd3';
+import * as Drag from './Utility/Drag';
+import * as Draw from './Utility/Draw';
+import * as Edit from './Utility/Edit';
 import * as C from './Utility/Const';
 import * as U from './Utility/Utils';
 import * as DOM from './Utility/DOMVariables';
-import * as Toggle from './Utility/Toggles';
+import * as Civ from './Civilization';
+import * as Mountain from './Mountain';
+import * as Hill from './Hill';
+import addStrait from './Strait';
 import * as UI from './Utility/UI';
 import * as Gen from './Utility/Generate';
 import * as Focus from './Utility/Focus';
 import * as Zoom from './Utility/Zoom';
 import * as Height from './Height';
+import * as Templates from './Utility/Templates';
+import * as History from './Utility/History';
 import * as LS from './Utility/LocalStorage';
+import {tip} from './script';
 
 function fantasyMap() {
   C.labels.append('g').attr('id', 'countries');
@@ -25,72 +35,112 @@ function fantasyMap() {
   C.terrain.append('g').attr('id', 'forests');
 
   // append ocean pattern
-  C.oceanPattern.append('rect').attr('fill', 'url(#oceanic)').attr('stroke', 'none');
+  C.oceanPattern
+    .append('rect')
+    .attr('fill', 'url(#oceanic)')
+    .attr('stroke', 'none');
   C.oceanLayers.append('rect').attr('id', 'oceanBase');
 
+  // Mountain imports
+  const [addMountain] = [Mountain.addMountain()];
+
+  // Hill imports
+  const [addHill, addRange] = [Hill.addHill(), Hill.addRange()];
+
+  // Templates imports
+  const [changeTemplate] = [Templates.changeTemplate()];
+
   // input/output DOM variable "imports"
-  const [
-    mapWidthInput,
-    mapHeightInput
-  ] = [
-    DOM.mapWidthInput,
-    DOM.mapHeightInput
-  ];
+  const [mapWidthInput, mapHeightInput] = [DOM.mapWidthInput, DOM.mapHeightInput];
 
   // Other DOM variable "imports"
-  const [
-    labels,
-    distanceScale,
-    distanceUnit,
-    areaUnit,
-    alertMessage
-  ] = [
+  const [labels, distanceScale, distanceUnit, areaUnit, alertMessage, tooltip, powerInput, ctx] = [
     DOM.labels,
     DOM.distanceScale,
     DOM.distanceUnit,
     DOM.areaUnit,
-    DOM.alertMessage
+    DOM.alertMessage,
+    DOM.tooltip,
+    DOM.powerInput,
+    DOM.ctx
   ];
+
+  let [viewX, viewY] = [DOM.viewX, DOM.viewY];
+
+  // History utility impports
+  const [restoreHistory] = [History.restoreHistory()];
 
   // Constant variable "imports"
-  const [
-    ruler,
-    debug,
-    viewbox,
-    regions,
-    version
-  ] = [
-    C.ruler,
-    C.debug,
-    C.viewbox,
-    C.regions,
-    C.version
-  ];
+  const [ruler, debug, viewbox, regions, version, svg, grid, icons] = [C.ruler, C.debug, C.viewbox, C.regions, C.version, C.svg, C.grid, C.icons];
 
   // Utility imports
-  const rn = U.rn();
+  const [rn, clickToAdd, closeDialogs, uploadFile, saveAsImage, saveMap, manors, undraw, changeSelectedOnClick, recalculateStateData, placePoints, calculateVoronoi, detectNeighbors, drawScaleBar, disruptHeights, convertImage, autoAssign, completeConvertion, moveLayer, addPit, addStep] = [
+    U.rn(),
+    U.clickToAdd(),
+    U.closeDialogs(),
+    U.uploadFile(),
+    U.saveAsImage(),
+    U.saveMap(),
+    U.manors,
+    U.undraw(),
+    U.changeSelectedOnClick(),
+    U.recalculateStateData(),
+    U.placePoints(),
+    U.calculateVoronoi(),
+    U.detectNeighbors(),
+    U.drawScaleBar(),
+    U.disruptHeights(),
+    U.convertImage(),
+    U.autoAssign(),
+    U.completeConvertion(),
+    U.moveLayer(),
+    U.addPit(),
+    U.addStep()
+  ];
+
   // const opisometerEdgeDrag = U.opisometerEdgeDrag();
   const applyNamesData = U.applyNamesData();
   const applyDefaultStyle = U.applyDefaultStyle();
   const getSeed = U.getSeed();
 
   // UI imports
-  const elementDrag = UI.elementDrag();
+  const [elementDrag, exitCustomization, restoreDefaultEvents, removeAllLabelsInGroup, rulerEdgeDrag, removeParent, openBrushesPanel, getMap] = [
+    UI.elementDrag(),
+    UI.exitCustomization(),
+    UI.restoreDefaultEvents(),
+    UI.removeAllLabelsInGroup(),
+    UI.rulerEdgeDrag(),
+    UI.removeParent(),
+    UI.openBrushesPanel(),
+    UI.getMap()
+  ];
 
-  // Generate imports
-  const generate = Gen.generate();
+  // Generate utility imports
+  const [generate, generateStateName, generateName] = [Gen.generate(), Gen.generateStateName(), Gen.generateName()];
 
   // Focus imports
   const focusOn = Focus.focusOn();
 
   // Zoom imports
-  const invokeActiveZooming = Zoom.invokeActiveZooming();
+  const [invokeActiveZooming, resetZoom] = [Zoom.invokeActiveZooming(), Zoom.resetZoom()];
 
   // Height imports
-  const mockHeightmap = Height.mockHeightmap();
+  const [mockHeightmap, customizeHeightmap, modifyHeights, smoothHeights, heightsFromImage] = [Height.mockHeightmap(), Height.customizeHeightmap(), Height.modifyHeights(), Height.smoothHeights(), Height.heightsFromImage()];
+
+  // Edit utility imports
+  const [editCountries, editCultures, editScale, editHeightmap, changeMapSize] = [Edit.editCountries(), Edit.editCultures(), Edit.editScale(), Edit.editHeightmap(), Edit.changeMapSize()];
+
+  // Drag utility imports
+  const [drag, rulerCenterDrag] = [Drag.drag(), Drag.rulerCenterDrag()];
+
+  // Civilization imports
+  const [mockRegions, regenerateCountries, moveBurgToGroup] = [Civ.mockRegions().Civ.regenerateCountries(), Civ.moveBurgToGroup()];
+
+  // Draw utility imports
+  const [redrawRegions, drawPerspective] = [Draw.redrawRegions().Draw.drawPerspective()];
 
   // main data variables
-  // let seed;
+  let seed;
   // let params;
   // let voronoi;
   let diagram;
@@ -131,7 +181,7 @@ function fantasyMap() {
   const colors20 = d3.scaleOrdinal(d3.schemeCategory20);
 
   // D3 drag and zoom behavior
-  const scale = DOM.scale;
+  let scale = DOM.scale;
   // const viewX = DOM.viewX;
   // const viewY = DOM.viewY;
 
@@ -149,7 +199,8 @@ function fantasyMap() {
   // Changelog dialog window
   const storedVersion = localStorage.getItem('version'); // show message on load
   if (storedVersion !== version) {
-    alertMessage.innerHTML = `<b>2018-29-23</b>:
+    alertMessage.innerHTML =
+      `<b>2018-29-23</b>:
       The <i>Fantasy Map Generator</i> is updated up to version <b>${version}</b>.
       Main changes:<br><br>
       <li>Map Markers</li>
@@ -210,7 +261,7 @@ function fantasyMap() {
   $('#customizeTab').click(clickToAdd);
 
   // Map Loader based on FileSystem API
-  $('#mapToLoad').change(function () {
+  $('#mapToLoad').change(() => {
     console.time('loadMap');
     closeDialogs();
     const fileToLoad = this.files[0];
@@ -219,7 +270,7 @@ function fantasyMap() {
   });
 
   // Hotkeys, see github.com/Azgaar/Fantasy-Map-Generator/wiki/Hotkeys
-  d3.select('body').on('keydown', function () {
+  d3.select('body').on('keydown', () => {
     const active = document.activeElement.tagName;
     if (active === 'INPUT' || active === 'SELECT' || active === 'TEXTAREA') {
       return;
@@ -229,95 +280,95 @@ function fantasyMap() {
     const p = d3.mouse(this);
     if (key === 117) {
       $('#randomMap').click();
-    } // "F6" for new map
-    else if (key === 27) {
+    } else if (key === 27) {
+      // "F6" for new map
       closeDialogs();
-    } // Escape to close all dialogs
-    else if (key === 79) {
+    } else if (key === 79) {
+      // Escape to close all dialogs
       optionsTrigger.click();
-    } // "O" to toggle options
-    else if (key === 80) {
+    } else if (key === 80) {
+      // "O" to toggle options
       saveAsImage('png');
-    } // "P" to save as PNG
-    else if (key === 83) {
+    } else if (key === 83) {
+      // "P" to save as PNG
       saveAsImage('svg');
-    } // "S" to save as SVG
-    else if (key === 77) {
+    } else if (key === 77) {
+      // "S" to save as SVG
       saveMap();
-    } // "M" to save MAP file
-    else if (key === 76) {
+    } else if (key === 76) {
+      // "M" to save MAP file
       mapToLoad.click();
-    } // "L" to load MAP
-    else if (key === 32) {
+    } else if (key === 32) {
+      // "L" to load MAP
       console.table(cells[diagram.find(p[0], p[1]).index]);
-    } // Space to log focused cell data
-    else if (key === 192) {
+    } else if (key === 192) {
+      // Space to log focused cell data
       console.log(cells);
-    } // "`" to log cells data
-    else if (key === 66) {
+    } else if (key === 66) {
+      // "`" to log cells data
       console.table(manors);
-    } // "B" to log burgs data
-    else if (key === 67) {
+    } else if (key === 67) {
+      // "B" to log burgs data
       console.table(states);
-    } // "C" to log countries data
-    else if (key === 70) {
+    } else if (key === 70) {
+      // "C" to log countries data
       console.table(features);
-    } // "F" to log features data
-    else if (key === 37) {
+    } else if (key === 37) {
+      // "F" to log features data
       zoom.translateBy(svg, 10, 0);
-    } // Left to scroll map left
-    else if (key === 39) {
+    } else if (key === 39) {
+      // Left to scroll map left
       zoom.translateBy(svg, -10, 0);
-    } // Right to scroll map right
-    else if (key === 38) {
+    } else if (key === 38) {
+      // Right to scroll map right
       zoom.translateBy(svg, 0, 10);
-    } // Up to scroll map up
-    else if (key === 40) {
+    } else if (key === 40) {
+      // Up to scroll map up
       zoom.translateBy(svg, 0, -10);
-    } // Up to scroll map up
-    else if (key === 107) {
+    } else if (key === 107) {
+      // Up to scroll map up
       zoom.scaleBy(svg, 1.2);
-    } // Plus to zoom map up
-    else if (key === 109) {
+    } else if (key === 109) {
+      // Plus to zoom map up
       zoom.scaleBy(svg, 0.8);
-    } // Minus to zoom map out
-    else if (key === 48 || key === 96) {
+    } else if (key === 48 || key === 96) {
+      // Minus to zoom map out
       resetZoom();
-    } // 0 to reset zoom
-    else if (key === 49 || key === 97) {
+    } else if (key === 49 || key === 97) {
+      // 0 to reset zoom
       zoom.scaleTo(svg, 1);
-    } // 1 to zoom to 1
-    else if (key === 50 || key === 98) {
+    } else if (key === 50 || key === 98) {
+      // 1 to zoom to 1
       zoom.scaleTo(svg, 2);
-    } // 2 to zoom to 2
-    else if (key === 51 || key === 99) {
+    } else if (key === 51 || key === 99) {
+      // 2 to zoom to 2
       zoom.scaleTo(svg, 3);
-    } // 3 to zoom to 3
-    else if (key === 52 || key === 100) {
+    } else if (key === 52 || key === 100) {
+      // 3 to zoom to 3
       zoom.scaleTo(svg, 4);
-    } // 4 to zoom to 4
-    else if (key === 53 || key === 101) {
+    } else if (key === 53 || key === 101) {
+      // 4 to zoom to 4
       zoom.scaleTo(svg, 5);
-    } // 5 to zoom to 5
-    else if (key === 54 || key === 102) {
+    } else if (key === 54 || key === 102) {
+      // 5 to zoom to 5
       zoom.scaleTo(svg, 6);
-    } // 6 to zoom to 6
-    else if (key === 55 || key === 103) {
+    } else if (key === 55 || key === 103) {
+      // 6 to zoom to 6
       zoom.scaleTo(svg, 7);
-    } // 7 to zoom to 7
-    else if (key === 56 || key === 104) {
+    } else if (key === 56 || key === 104) {
+      // 7 to zoom to 7
       zoom.scaleTo(svg, 8);
-    } // 8 to zoom to 8
-    else if (key === 57 || key === 105) {
+    } else if (key === 57 || key === 105) {
+      // 8 to zoom to 8
       zoom.scaleTo(svg, 9);
-    } // 9 to zoom to 9
-    else if (key === 9) {
+    } else if (key === 9) {
+      // 9 to zoom to 9
       $('#updateFullscreen').click();
-    } // Tab to fit map to fullscreen
-    else if (ctrl && key === 90) {
+    } else if (ctrl && key === 90) {
+      // Tab to fit map to fullscreen
       undo.click();
-    } // Ctrl + "Z" to toggle undo
-    else if (ctrl && key === 89) {
+    } else if (ctrl && key === 89) {
+      // Ctrl + "Z" to toggle undo
       redo.click();
     } // Ctrl + "Y" to toggle undo
   });
@@ -333,23 +384,30 @@ function fantasyMap() {
       $('#regenerate').hide();
       $('#options').fadeIn();
       $('#layoutTab').click();
-      $('#optionsTrigger').removeClass('icon-right-open glow').addClass('icon-left-open');
+      $('#optionsTrigger')
+        .removeClass('icon-right-open glow')
+        .addClass('icon-left-open');
     } else {
       $('#options').fadeOut();
-      $('#optionsTrigger').removeClass('icon-left-open').addClass('icon-right-open');
+      $('#optionsTrigger')
+        .removeClass('icon-left-open')
+        .addClass('icon-right-open');
     }
   });
-  $('#collapsible').hover(() => {
-    if ($('#optionsTrigger').hasClass('glow')) {
-      return;
+  $('#collapsible').hover(
+    () => {
+      if ($('#optionsTrigger').hasClass('glow')) {
+        return;
+      }
+      if ($('#options').css('display') === 'none') {
+        $('#regenerate').show();
+        $('#optionsTrigger').removeClass('glow');
+      }
+    },
+    () => {
+      $('#regenerate').hide();
     }
-    if ($('#options').css('display') === 'none') {
-      $('#regenerate').show();
-      $('#optionsTrigger').removeClass('glow');
-    }
-  }, () => {
-    $('#regenerate').hide();
-  });
+  );
 
   // UI Button handlers
   $('button, a, li, i').on('click', () => {
@@ -398,30 +456,39 @@ function fantasyMap() {
       tip('Click to select a country, drag the circle to re-assign', true);
       mockRegions();
       const temp = regions.append('g').attr('id', 'temp');
-      $('#countriesBottom').children().hide();
+      $('#countriesBottom')
+        .children()
+        .hide();
       $('#countriesManuallyButtons').show();
       // highlight capital cells as it's not allowed to change capital's state that way
       states.map((s) => {
         if (s.capital === 'neutral' || s.capital === 'select') {
-          return;
+          return null;
         }
         const capital = s.capital;
         const index = manors[capital].cell;
-        temp.append('path')
-          .attr('data-cell', index).attr('data-state', s.i)
+        temp
+          .append('path')
+          .attr('data-cell', index)
+          .attr('data-state', s.i)
           .attr('d', `M${polygons[index].join('L')}Z`)
           .attr('fill', s.color)
           .attr('stroke', 'red')
           .attr('stroke-width', 0.7);
       });
-      viewbox.style('cursor', 'crosshair').call(drag).on('click', changeSelectedOnClick);
+      viewbox
+        .style('cursor', 'crosshair')
+        .call(drag)
+        .on('click', changeSelectedOnClick);
     }
     if (id === 'countriesRegenerate') {
       customization = 3;
       tip('Manually change "Expansion" value for a country or click on "Randomize" button', true);
       mockRegions();
       regions.append('g').attr('id', 'temp');
-      $('#countriesBottom').children().hide();
+      $('#countriesBottom')
+        .children()
+        .hide();
       $('#countriesRegenerateButtons').show();
       $('.statePower, .icon-resize-full, .stateCells, .icon-check-empty').toggleClass('hidden');
       $('div[data-sortby=\'expansion\'],div[data-sortby=\'cells\']').toggleClass('hidden');
@@ -430,7 +497,7 @@ function fantasyMap() {
       debug.selectAll('.circle').remove();
       const changedCells = regions.select('#temp').selectAll('path');
       let changedStates = [];
-      changedCells.each(function () {
+      changedCells.each(() => {
         const el = d3.select(this);
         const cell = +el.attr('data-cell');
         let stateOld = cells[cell].region;
@@ -468,7 +535,9 @@ function fantasyMap() {
       if (labels.style('display') === 'none') {
         toggleLabels.click();
       }
-      $('#countriesBottom').children().show();
+      $('#countriesBottom')
+        .children()
+        .show();
       $('#countriesManuallyButtons, #countriesRegenerateButtons').hide();
       $('.selected').removeClass('selected');
       $('div[data-sortby=\'expansion\'],.statePower, .icon-resize-full').addClass('hidden');
@@ -481,14 +550,16 @@ function fantasyMap() {
     }
     if (id === 'countriesRandomize') {
       const mod = +powerInput.value * 2;
-      $('.statePower').each(function (e, i) {
-        const state = +(this.parentNode.id).slice(5);
+      $('.statePower').each((e, i) => {
+        const state = +this.parentNode.id.slice(5);
         if (states[state].capital === 'neutral') {
           return;
         }
-        const power = rn(Math.random() * mod / 2 + 1, 1);
+        const power = rn((Math.random() * mod) / 2 + 1, 1);
         $(this).val(power);
-        $(this).parent().attr('data-expansion', power);
+        $(this)
+          .parent()
+          .attr('data-expansion', power);
         states[state].power = power;
       });
       regenerateCountries();
@@ -525,11 +596,14 @@ function fantasyMap() {
         }
         s.name = generateStateName(s.i);
         labels.select(`#regionLabel${s.i}`).text(s.name);
-        editor.select(`#state${s.i}`).select('.stateName').attr('value', s.name);
+        editor
+          .select(`#state${s.i}`)
+          .select('.stateName')
+          .attr('value', s.name);
       });
     }
     if (id === 'countriesPercentage') {
-      var el = $('#countriesEditor');
+      const el = $('#countriesEditor');
       if (el.attr('data-type') === 'absolute') {
         el.attr('data-type', 'percentage');
         const totalCells = land.length;
@@ -537,15 +611,27 @@ function fantasyMap() {
         let totalArea = countriesFooterArea.innerHTML;
         totalArea = getInteger(totalArea.split(' ')[0]);
         const totalPopulation = getInteger(countriesFooterPopulation.innerHTML);
-        $('#countriesBody > .states').each(function () {
-          const cells = rn($(this).attr('data-cells') / totalCells * 100);
-          const burgs = rn($(this).attr('data-burgs') / totalBurgs * 100);
-          const area = rn($(this).attr('data-area') / totalArea * 100);
-          const population = rn($(this).attr('data-population') / totalPopulation * 100);
-          $(this).children().filter('.stateCells').text(`${cells}%`);
-          $(this).children().filter('.stateBurgs').text(`${burgs}%`);
-          $(this).children().filter('.stateArea').text(`${area}%`);
-          $(this).children().filter('.statePopulation').val(`${population}%`);
+        $('#countriesBody > .states').each(() => {
+          const cells = rn(($(this).attr('data-cells') / totalCells) * 100);
+          const burgs = rn(($(this).attr('data-burgs') / totalBurgs) * 100);
+          const area = rn(($(this).attr('data-area') / totalArea) * 100);
+          const population = rn(($(this).attr('data-population') / totalPopulation) * 100);
+          $(this)
+            .children()
+            .filter('.stateCells')
+            .text(`${cells}%`);
+          $(this)
+            .children()
+            .filter('.stateBurgs')
+            .text(`${burgs}%`);
+          $(this)
+            .children()
+            .filter('.stateArea')
+            .text(`${area}%`);
+          $(this)
+            .children()
+            .filter('.statePopulation')
+            .val(`${population}%`);
         });
       } else {
         el.attr('data-type', 'absolute');
@@ -558,7 +644,7 @@ function fantasyMap() {
       }
       const unit = areaUnit.value === 'square' ? `${distanceUnit.value}2` : areaUnit.value;
       let data = `Country,Capital,Cells,Burgs,Area (${unit}),Population\n`; // countries headers
-      $('#countriesBody > .states').each(function () {
+      $('#countriesBody > .states').each(() => {
         const country = $(this).attr('data-country');
         if (country === 'bottom') {
           data += 'neutral,';
@@ -580,7 +666,7 @@ function fantasyMap() {
       data += '\nBurg,Country,Culture,Population\n'; // burgs headers
       manors.map((m) => {
         if (m.region === 'removed') {
-          return;
+          return null;
         } // skip removed burgs
         data += `${m.name},`;
         const country = m.region === 'neutral' ? 'neutral' : states[m.region].name;
@@ -628,7 +714,7 @@ function fantasyMap() {
             states.map((s) => {
               const c = +s.capital;
               if (isNaN(c)) {
-                return;
+                return null;
               }
               moveBurgToGroup(c, 'towns');
             });
@@ -666,7 +752,7 @@ function fantasyMap() {
             $('#burgsBody').empty();
             manors.map((m) => {
               if (m.region !== region) {
-                return;
+                return null;
               }
               m.region = 'removed';
               cells[m.cell].manor = undefined;
@@ -696,11 +782,13 @@ function fantasyMap() {
     }
     if (id === 'regenerateBurgNames') {
       const s = +$('#burgsEditor').attr('data-state');
-      $('.burgName').each(function (e, i) {
-        const b = +(this.parentNode.id).slice(5);
+      $('.burgName').each((e, i) => {
+        const b = +this.parentNode.id.slice(5);
         const name = generateName(manors[b].culture);
         $(this).val(name);
-        $(this).parent().attr('data-burg', name);
+        $(this)
+          .parent()
+          .attr('data-burg', name);
         manors[b].name = name;
         labels.select(`[data-id='${b}']`).text(name);
       });
@@ -716,43 +804,71 @@ function fantasyMap() {
     if (id === 'burgAdd') {
       const state = +$('#burgsEditor').attr('data-state');
       clickToAdd(); // to load on click event function
-      $('#addBurg').click().attr('data-state', state);
+      $('#addBurg')
+        .click()
+        .attr('data-state', state);
     }
     if (id === 'toggleScaleBar') {
       $('#scaleBar').toggleClass('hidden');
     }
     if (id === 'addRuler') {
       $('#ruler').show();
-      const rulerNew = ruler.append('g').attr('class', 'linear').call(d3.drag().on('start', elementDrag));
+      const rulerNew = ruler
+        .append('g')
+        .attr('class', 'linear')
+        .call(d3.drag().on('start', elementDrag));
       const factor = rn(1 / Math.pow(scale, 0.3), 1);
       const y = Math.floor(Math.random() * graphHeight * 0.5 + graphHeight * 0.25);
-      const x1 = graphWidth * 0.2,
-        x2 = graphWidth * 0.8;
+      const [x1, x2] = [graphWidth * 0.2, (x2 = graphWidth * 0.8)];
       const dash = rn(30 / distanceScale.value, 2);
-      rulerNew.append('line').attr('x1', x1).attr('y1', y).attr('x2', x2)
+      rulerNew
+        .append('line')
+        .attr('x1', x1)
+        .attr('y1', y)
+        .attr('x2', x2)
         .attr('y2', y)
         .attr('class', 'white')
         .attr('stroke-width', factor);
-      rulerNew.append('line').attr('x1', x1).attr('y1', y).attr('x2', x2)
+      rulerNew
+        .append('line')
+        .attr('x1', x1)
+        .attr('y1', y)
+        .attr('x2', x2)
         .attr('y2', y)
         .attr('class', 'gray')
         .attr('stroke-width', factor)
         .attr('stroke-dasharray', dash);
-      rulerNew.append('circle').attr('r', 2 * factor).attr('stroke-width', 0.5 * factor).attr('cx', x1)
+      rulerNew
+        .append('circle')
+        .attr('r', 2 * factor)
+        .attr('stroke-width', 0.5 * factor)
+        .attr('cx', x1)
         .attr('cy', y)
         .attr('data-edge', 'left')
         .call(d3.drag().on('drag', rulerEdgeDrag));
-      rulerNew.append('circle').attr('r', 2 * factor).attr('stroke-width', 0.5 * factor).attr('cx', x2)
+      rulerNew
+        .append('circle')
+        .attr('r', 2 * factor)
+        .attr('stroke-width', 0.5 * factor)
+        .attr('cx', x2)
         .attr('cy', y)
         .attr('data-edge', 'rigth')
         .call(d3.drag().on('drag', rulerEdgeDrag));
-      rulerNew.append('circle').attr('r', 1.2 * factor).attr('stroke-width', 0.3 * factor).attr('cx', graphWidth / 2)
+      rulerNew
+        .append('circle')
+        .attr('r', 1.2 * factor)
+        .attr('stroke-width', 0.3 * factor)
+        .attr('cx', graphWidth / 2)
         .attr('cy', y)
         .attr('class', 'center')
         .call(d3.drag().on('start', rulerCenterDrag));
       const dist = rn(x2 - x1);
       const label = `${rn(dist * distanceScale.value)} ${distanceUnit.value}`;
-      rulerNew.append('text').attr('x', graphWidth / 2).attr('y', y).attr('dy', -1)
+      rulerNew
+        .append('text')
+        .attr('x', graphWidth / 2)
+        .attr('y', y)
+        .attr('dy', -1)
         .attr('data-dist', dist)
         .text(label)
         .text(label)
@@ -827,7 +943,7 @@ function fantasyMap() {
         resizable: false,
         title: 'Edit Heightmap',
         buttons: {
-          'Clean up': function () {
+          'Clean up': () => {
             editHeightmap('clean');
             $(this).dialog('close');
           },
@@ -855,25 +971,33 @@ function fantasyMap() {
           modifyHeights(subject, 0, +modifier);
         }
         if (sign === '÷') {
-          modifyHeights(subject, 0, (1 / modifier));
+          modifyHeights(subject, 0, 1 / modifier);
         }
         if (sign === '+') {
           modifyHeights(subject, +modifier, 1);
         }
         if (sign === '-') {
-          modifyHeights(subject, (-1 * modifier), 1);
+          modifyHeights(subject, -1 * modifier, 1);
         }
         if (sign === '^') {
           modifyHeights(subject, 0, `^${modifier}`);
         }
+
+        // TODO: Missing these functions
         updateHeightmap();
         updateHistory();
       }
       if (id === 'rescaleButton') {
-        $('#modifyButtons').children().not('#rescaleButton, .condition').toggle();
+        $('#modifyButtons')
+          .children()
+          .not('#rescaleButton, .condition')
+          .toggle();
       }
       if (id === 'rescaleCondButton') {
-        $('#modifyButtons').children().not('#rescaleCondButton, #rescaler').toggle();
+        $('#modifyButtons')
+          .children()
+          .not('#rescaleCondButton, #rescaler')
+          .toggle();
       }
       if (id === 'undo' || id === 'templateUndo') {
         restoreHistory(historyStage - 1);
@@ -883,13 +1007,13 @@ function fantasyMap() {
       }
       if (id === 'smoothHeights') {
         smoothHeights(4);
-        updateHeightmap();
-        updateHistory();
+        updateHeightmap(); // TODO
+        updateHistory(); // TODO
       }
       if (id === 'disruptHeights') {
         disruptHeights();
-        updateHeightmap();
-        updateHistory();
+        updateHeightmap(); // TODO
+        updateHistory(); // TODO
       }
       if (id === 'getMap') {
         getMap();
@@ -1002,15 +1126,15 @@ function fantasyMap() {
       invokeActiveZooming();
     }
     if (id === 'styleFontPlus' || id === 'styleFontMinus') {
-      var el = viewbox.select(`#${styleElementSelect.value}`);
+      const el = viewbox.select(`#${styleElementSelect.value}`);
       const mod = id === 'styleFontPlus' ? 1.1 : 0.9;
-      el.selectAll('g').each(function () {
+      el.selectAll('g').each(() => {
         const el = d3.select(this);
         let size = rn(el.attr('data-size') * mod, 2);
         if (size < 2) {
           size = 2;
         }
-        el.attr('data-size', size).attr('font-size', rn((size + (size / scale)) / 2, 2));
+        el.attr('data-size', size).attr('font-size', rn((size + size / scale) / 2, 2));
       });
       invokeActiveZooming();
       return;
@@ -1032,7 +1156,7 @@ function fantasyMap() {
               // clear history
               history = [];
               historyStage = 0;
-              updateHistory();
+              updateHistory(); // TODO
               redo.disabled = templateRedo.disabled = true;
               undo.disabled = templateUndo.disabled = true;
             },
@@ -1049,7 +1173,7 @@ function fantasyMap() {
       getMap();
     }
     if (id === 'convertColorsMinus') {
-      var current = +convertColors.value - 1;
+      let current = +convertColors.value - 1;
       if (current < 4) {
         current = 3;
       }
@@ -1057,7 +1181,7 @@ function fantasyMap() {
       heightsFromImage(current);
     }
     if (id === 'convertColorsPlus') {
-      var current = +convertColors.value + 1;
+      let current = +convertColors.value + 1;
       if (current > 255) {
         current = 256;
       }
@@ -1065,14 +1189,17 @@ function fantasyMap() {
       heightsFromImage(current);
     }
     if (id === 'convertOverlayButton') {
-      $('#convertImageButtons').children().not(this).not('#convertColors')
+      $('#convertImageButtons')
+        .children()
+        .not(this)
+        .not('#convertColors')
         .toggle();
     }
     if (id === 'convertAutoLum') {
-      autoAssing('lum');
+      autoAssign('lum');
     }
     if (id === 'convertAutoHue') {
-      autoAssing('hue');
+      autoAssign('hue');
     }
     if (id === 'convertComplete') {
       completeConvertion();
@@ -1092,7 +1219,7 @@ function fantasyMap() {
       $('#alert').dialog({
         title: 'File saver. Please enable popups!',
         buttons: {
-          'Don\'t show again': function () {
+          'Don\'t show again': () => {
             localStorage.setItem('dns_allow_popup_message', true);
             $(this).dialog('close');
           },
@@ -1124,7 +1251,7 @@ function fantasyMap() {
     $(this).toggleClass('icon-lock icon-lock-open');
     const locked = +$(this).hasClass('icon-lock');
     $(this).attr('data-locked', locked);
-    const option = (this.id).slice(4, -5).toLowerCase();
+    const option = this.id.slice(4, -5).toLowerCase();
     const value = $(`#${option}Input`).val();
     if (locked) {
       localStorage.setItem(option, value);
@@ -1151,7 +1278,7 @@ function fantasyMap() {
   $('#mapLayers').sortable({
     items: 'li:not(.solid)',
     cancel: '.solid',
-    update: moveLayer
+    update: moveLayer()
   });
   $('#templateBody').sortable({
     items: 'div:not(div[data-type=\'Mountain\'])'
@@ -1159,7 +1286,9 @@ function fantasyMap() {
   $('#mapLayers, #templateBody').disableSelection();
 
   $('#labelGroupButton').click(() => {
-    $('#labelEditor > button').not(this).toggle();
+    $('#labelEditor > button')
+      .not(this)
+      .toggle();
     $('#labelGroupButtons').toggle();
   });
 
@@ -1188,7 +1317,7 @@ function fantasyMap() {
 
   // re-load page with provided seed
   $('#optionsSeedGenerate').on('click', () => {
-    if (optionsSeed.value == seed) {
+    if (optionsSeed.value === seed) {
       return;
     }
     seed = optionsSeed.value;
@@ -1233,7 +1362,6 @@ function fantasyMap() {
       const type = $(`#templateBody div:nth-child(${step})`).attr('data-type');
       if (type === 'Mountain') {
         addMountain();
-        continue;
       }
       let count = $(`#templateBody div:nth-child(${step}) .templateElCount`).val();
       const dist = $(`#templateBody div:nth-child(${step}) .templateElDist`).val();
@@ -1271,7 +1399,7 @@ function fantasyMap() {
       }
     }
     mockHeightmap();
-    updateHistory();
+    updateHistory(); // TODO
   });
 
   // Save custom template as text file
@@ -1310,13 +1438,15 @@ function fantasyMap() {
     const fileToLoad = this.files[0];
     this.value = '';
     const fileReader = new FileReader();
-    fileReader.onload = function (fileLoadedEvent) {
+    fileReader.onload = (fileLoadedEvent) => {
       const dataLoaded = fileLoadedEvent.target.result;
       const data = dataLoaded.split('\r\n');
       $('#templateBody').empty();
       if (data.length > 0) {
         $('#templateBody').attr('data-changed', 1);
-        $('#templateSelect').attr('data-prev', 'templateCustom').val('templateCustom');
+        $('#templateSelect')
+          .attr('data-prev', 'templateCustom')
+          .val('templateCustom');
       }
       for (let i = 0; i < data.length; i++) {
         const line = data[i].split(' ');
@@ -1341,7 +1471,7 @@ function fantasyMap() {
     const reader = new FileReader();
     const img = new Image();
     // draw image
-    img.onload = function () {
+    img.onload = () => {
       ctx.drawImage(img, 0, 0, svgWidth, svgHeight);
       heightsFromImage(+convertColors.value);
       console.timeEnd('loadImage');
@@ -1397,13 +1527,16 @@ function fantasyMap() {
       var count = '<label>count:<input class="templateElCount" onmouseover="tip(\'Blobs to add\')" type="number" value="1" min="1" max="99"></label>';
     }
     if (id === 'Hill') {
-      var dist = '<label>distribution:<input class="templateElDist" onmouseover="tip(\'Set blobs distribution. 0.5 - map center; 0 - any place\')" type="number" value="0.25" min="0" max="0.5" step="0.01"></label>';
+      var dist =
+        '<label>distribution:<input class="templateElDist" onmouseover="tip(\'Set blobs distribution. 0.5 - map center; 0 - any place\')" type="number" value="0.25" min="0" max="0.5" step="0.01"></label>';
     }
     if (id === 'Add' || id === 'Multiply') {
-      var dist = '<label>to:<select class="templateElDist" onmouseover="tip(\'Change only land or all cells\')"><option value="all" selected>all cells</option><option value="land">land only</option><option value="interval">interval</option></select></label>';
+      var dist =
+        '<label>to:<select class="templateElDist" onmouseover="tip(\'Change only land or all cells\')"><option value="all" selected>all cells</option><option value="land">land only</option><option value="interval">interval</option></select></label>';
     }
     if (id === 'Add') {
-      var count = '<label>value:<input class="templateElCount" onmouseover="tip(\'Add value to height of all cells (negative values are allowed)\')" type="number" value="-10" min="-100" max="100" step="1"></label>';
+      var count =
+        '<label>value:<input class="templateElCount" onmouseover="tip(\'Add value to height of all cells (negative values are allowed)\')" type="number" value="-10" min="-100" max="100" step="1"></label>';
     }
     if (id === 'Multiply') {
       var count = '<label>by value:<input class="templateElCount" onmouseover="tip(\'Multiply all cells Height by the value\')" type="number" value="1.1" min="0" max="10" step="0.1"></label>';
@@ -1415,8 +1548,10 @@ function fantasyMap() {
       var count = '<label>width:<input class="templateElCount" onmouseover="tip(\'Set strait width\')" value="1-7"></label>';
     }
     el.append('<span onmouseover="tip(\'Remove step\')" class="icon-trash-empty"></span>');
-    $('#templateBody .icon-trash-empty').on('click', function () {
-      $(this).parent().remove();
+    $('#templateBody .icon-trash-empty').on('click', () => {
+      $(this)
+        .parent()
+        .remove();
     });
     if (dist) {
       el.append(dist);
@@ -1444,7 +1579,8 @@ function fantasyMap() {
     const sortby = el.attr('data-sortby');
     const list = el.parent().next(); // get list container element (e.g. "countriesBody")
     const lines = list.children('div'); // get list elements
-    if (state === 'no' || state === 'asc') { // sort desc
+    if (state === 'no' || state === 'asc') {
+      // sort desc
       el.removeClass(`icon-sort-${type}-down`);
       el.addClass(`icon-sort-${type}-up`);
       lines.sort((a, b) => {
@@ -1469,7 +1605,8 @@ function fantasyMap() {
         return 0;
       });
     }
-    if (state === 'desc') { // sort asc
+    if (state === 'desc') {
+      // sort asc
       el.removeClass(`icon-sort-${type}-up`);
       el.addClass(`icon-sort-${type}-down`);
       lines.sort((a, b) => {
@@ -1502,7 +1639,7 @@ function fantasyMap() {
     const fileToLoad = this.files[0];
     this.value = '';
     const fileReader = new FileReader();
-    fileReader.onload = function (fileLoadedEvent) {
+    fileReader.onload = (fileLoadedEvent) => {
       const dataLoaded = fileLoadedEvent.target.result;
       const data = dataLoaded.split('\r\n');
       if (data.length === 0) {
@@ -1513,17 +1650,13 @@ function fantasyMap() {
       message += '<div class="overflow-div"><table class="overflow-table"><tr><th>Id</th><th>Current name</th><th>New Name</th></tr>';
       for (let i = 0; i < data.length && i < manors.length; i++) {
         const v = data[i];
-        if (v === '' || v === undefined) {
-          continue;
+        if ((v === '' || v === undefined) && v === manors[i].name) {
+          change.push({
+            i,
+            name: v
+          });
+          message += `<tr><td style="width:20%">${i}</td><td style="width:40%">${manors[i].name}</td><td style="width:40%">${v}</td></tr>`;
         }
-        if (v === manors[i].name) {
-          continue;
-        }
-        change.push({
-          i,
-          name: v
-        });
-        message += `<tr><td style="width:20%">${i}</td><td style="width:40%">${manors[i].name}</td><td style="width:40%">${v}</td></tr>`;
       }
       message += '</tr></table></div>';
       alertMessage.innerHTML = message;
@@ -1545,7 +1678,7 @@ function fantasyMap() {
               labels.select(`[data-id='${id}']`).text(change[i].name);
             }
             $(this).dialog('close');
-            updateCountryEditors();
+            updateCountryEditors(); // TODO
           }
         }
       });

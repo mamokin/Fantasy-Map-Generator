@@ -1,14 +1,42 @@
 import $ from 'jquery';
 import * as d3 from 'd3';
 import * as C from './Const';
+import * as DOM from './DOMVariables';
 import * as Toggle from './Toggles';
+
+let manors;
+
+// DOM constants
+const [
+  lockRegionsInput,
+  svgHeight,
+  svgWidth,
+] = [
+  DOM.lockRegionsInput,
+  DOM.svgHeight,
+  DOM.svgWidth
+];
+
+// Constants
+const [
+  defaultCultures,
+  graphHeight,
+  graphWidth,
+  labels,
+  nameBase,
+  nameBases
+] = [
+  C.defaultCultures
+  C.graphHeight,
+  C.graphWidth,
+  C.labels,
+  C.nameBase,
+  C.nameBases
+];
 
 // TODO: STORE IN STATE
 // apply default names data
 function applyDefaultNamesData() {
-  const nameBase = C.nameBase;
-  const nameBases = C.nameBases;
-  const defaultCultures = C.defaultCultures;
   return {nameBase, nameBases, defaultCultures};
 }
 // apply names data from localStorage if available
@@ -77,15 +105,58 @@ function si(n) {
 function getInteger(value) {
   const metric = value.slice(-1);
   if (metric === 'K') {
-    return parseInt(value.slice(0, -1) * 1e3);
+    return parseInt(value.slice(0, -1) * 1e3, 10);
   }
   if (metric === 'M') {
-    return parseInt(value.slice(0, -1) * 1e6);
+    return parseInt(value.slice(0, -1) * 1e6, 10);
   }
   if (metric === 'B') {
-    return parseInt(value.slice(0, -1) * 1e9);
+    return parseInt(value.slice(0, -1) * 1e9, 10);
   }
-  return parseInt(value);
+  return parseInt(value, 10);
+}
+
+// Code from Kaiido's answer:
+// https://stackoverflow.com/questions/42402584/how-to-use-google-fonts-in-canvas-when-drawing-dom-objects-in-svg
+function GFontToDataURI(url) {
+  return fetch(url) // first fecth the embed stylesheet page
+    .then((resp) => resp.text()) // we only need the text of it
+    .then((text) => {
+      const s = document.createElement('style');
+      s.innerHTML = text;
+      document.head.appendChild(s);
+      const styleSheet = Array.prototype.filter.call(
+        document.styleSheets,
+        (sS) => sS.ownerNode === s
+      )[0];
+      const FontRule = (rule) => {
+        const src = rule.style.getPropertyValue('src');
+        const family = rule.style.getPropertyValue('font-family');
+        const url = src.split('url(')[1].split(')')[0];
+        return {
+          rule,
+          src,
+          url: url.substring(url.length - 1, 1)
+        };
+      };
+      const [fontRules, fontProms] = [[], []];
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const r of styleSheet.cssRules) {
+        const fR = FontRule(r);
+        fontRules.push(fR);
+        fontProms.push(fetch(fR.url) // fetch the actual font-file (.woff)
+          .then((resp) => resp.blob())
+          .then((blob) => new Promise((resolve) => {
+            const f = new FileReader();
+            f.onload = (e) => resolve(f.result);
+            f.readAsDataURL(blob);
+          }))
+          .then((dataURL) => fR.rule.cssText.replace(fR.url, dataURL)));
+      }
+      document.head.removeChild(s); // clean up
+      return Promise.all(fontProms); // wait for all this has been done
+    });
 }
 
 // downalod map as SVG or PNG file
@@ -97,7 +168,7 @@ function saveAsImage(type) {
   ];
   // get non-standard fonts used for labels to fetch them from web
   const fontsInUse = []; // to store fonts currently in use
-  C.labels.selectAll('g').each(() => {
+  labels.selectAll('g').each(() => {
     const font = d3.select(this).attr('data-font');
     if (!font) {
       return;
@@ -119,21 +190,21 @@ function saveAsImage(type) {
 
   // rteset transform for svg
   if (type === 'svg') {
-    clone.attr('width', C.graphWidth).attr('height', C.graphHeight);
+    clone.attr('width', graphWidth).attr('height', graphHeight);
     clone.select('#viewbox').attr('transform', null);
-    if (C.svgWidth !== C.graphWidth || C.svgHeight !== C.graphHeight) {
+    if (svgWidth !== graphWidth || svgHeight !== graphHeight) {
       // move scale bar to right bottom corner
       const el = clone.select('#scaleBar');
       if (!el.size()) {
         return;
       }
       const bbox = el.select('rect').node().getBBox();
-      const tr = [C.graphWidth - bbox.width, C.graphHeight - (bbox.height - 10)];
+      const tr = [graphWidth - bbox.width, graphHeight - (bbox.height - 10)];
       el.attr('transform', `translate(${rn(tr[0])},${rn(tr[1])})`);
     }
 
     // to fix use elements sizing
-    clone.selectAll('use').each(function () {
+    clone.selectAll('use').each(() => {
       const size = this.parentNode.getAttribute('size') || 1;
       this.setAttribute('width', `${size}px`);
       this.setAttribute('height', `${size}px`);
@@ -156,13 +227,13 @@ function saveAsImage(type) {
   const defaultStyles = window.getComputedStyle(emptyG);
 
   // show hidden labels but in reduced size
-  clone.select('#labels').selectAll('.hidden').each(function (e) {
+  clone.select('#labels').selectAll('.hidden').each((e) => {
     const size = d3.select(this).attr('font-size');
     d3.select(this).classed('hidden', false).attr('font-size', rn(size * 0.4, 2));
   });
 
   // save group css to style attribute
-  clone.selectAll('g, #ruler > g > *, #scaleBar > text').each(function (d) {
+  clone.selectAll('g, #ruler > g > *, #scaleBar > text').each((d) => {
     const compStyle = window.getComputedStyle(this);
     let style = '';
     for (let i = 0; i < compStyle.length; i++) {
@@ -171,20 +242,17 @@ function saveAsImage(type) {
       // Firefox mask hack
       if (key === 'mask-image' && value !== defaultStyles.getPropertyValue(key)) {
         style += 'mask-image: url(\'#shape\');';
-        continue;
+        // continue;
       }
-      if (key === 'cursor') {
-        continue;
-      } // cursor should be default
-      if (this.hasAttribute(key)) {
-        continue;
-      } // don't add style if there is the same attribute
-      if (value === defaultStyles.getPropertyValue(key)) {
-        continue;
+      if (
+        key === 'cursor' && // cursor should be default
+        this.hasAttribute(key) &&
+        value === defaultStyles.getPropertyValue(key) // don't add style if there is the same attribute
+      ) {
+        style += `${key}:${value};`;
       }
-      style += `${key}:${value};`;
     }
-    if (style != '') {
+    if (style !== '') {
       this.setAttribute('style', style);
     }
   });
@@ -207,7 +275,7 @@ function saveAsImage(type) {
       canvas.height = svgHeight * pngResolutionInput.value;
       const img = new Image();
       img.src = url;
-      img.onload = function () {
+      img.onload = () => {
         window.URL.revokeObjectURL(url);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         link.download = `fantasy_map_${Date.now()}.png`;
@@ -234,49 +302,6 @@ function saveAsImage(type) {
       window.URL.revokeObjectURL(url);
     }, 5000);
   });
-}
-
-// Code from Kaiido's answer:
-// https://stackoverflow.com/questions/42402584/how-to-use-google-fonts-in-canvas-when-drawing-dom-objects-in-svg
-function GFontToDataURI(url) {
-  return fetch(url) // first fecth the embed stylesheet page
-    .then((resp) => resp.text()) // we only need the text of it
-    .then((text) => {
-      const s = document.createElement('style');
-      s.innerHTML = text;
-      document.head.appendChild(s);
-      const styleSheet = Array.prototype.filter.call(
-        document.styleSheets,
-        (sS) => sS.ownerNode === s
-      )[0];
-      const FontRule = (rule) => {
-        const src = rule.style.getPropertyValue('src');
-        const family = rule.style.getPropertyValue('font-family');
-        const url = src.split('url(')[1].split(')')[0];
-        return {
-          rule,
-          src,
-          url: url.substring(url.length - 1, 1)
-        };
-      };
-      let fontRules = [],
-        fontProms = [];
-
-      for (const r of styleSheet.cssRules) {
-        const fR = FontRule(r);
-        fontRules.push(fR);
-        fontProms.push(fetch(fR.url) // fetch the actual font-file (.woff)
-          .then((resp) => resp.blob())
-          .then((blob) => new Promise((resolve) => {
-            const f = new FileReader();
-            f.onload = (e) => resolve(f.result);
-            f.readAsDataURL(blob);
-          }))
-          .then((dataURL) => fR.rule.cssText.replace(fR.url, dataURL)));
-      }
-      document.head.removeChild(s); // clean up
-      return Promise.all(fontProms); // wait for all this has been done
-    });
 }
 
 // Save in .map format, based on FileSystem API
@@ -390,7 +415,7 @@ function undraw() {
 function uploadFile(file, callback) {
   console.time('loadMap');
   const fileReader = new FileReader();
-  fileReader.onload = function (fileLoadedEvent) {
+  fileReader.onload = (fileLoadedEvent) => {
     const dataLoaded = fileLoadedEvent.target.result;
     const data = dataLoaded.split('\r\n');
     // data convention: 0 - params; 1 - all points; 2 - cells; 3 - manors; 4 - states;
@@ -596,7 +621,7 @@ function applyLoadedData(data) {
       .attr('stroke-opacity', 1);
   }
 
-  icons.selectAll('g').each(function () {
+  icons.selectAll('g').each(() => {
     const size = this.getAttribute('font-size');
     if (size === null || size === undefined) {
       return;
@@ -605,11 +630,11 @@ function applyLoadedData(data) {
     this.setAttribute('size', size);
   });
 
-  icons.select('#burgIcons').selectAll('circle').each(function () {
+  icons.select('#burgIcons').selectAll('circle').each(() => {
     this.setAttribute('r', this.parentNode.getAttribute('size'));
   });
 
-  icons.selectAll('use').each(function () {
+  icons.selectAll('use').each(() => {
     const size = this.parentNode.getAttribute('size');
     if (size === null || size === undefined) {
       return;
@@ -785,7 +810,7 @@ function applyLoadedData(data) {
   d3.select('#toggleGrid').classed('buttonoff', grid.style('display') === 'none');
 
   // update map to support some old versions and fetch fonts
-  labels.selectAll('g').each(function (d) {
+  labels.selectAll('g').each((d) => {
     const el = d3.select(this);
     if (el.attr('id') === 'burgLabels') {
       return;
@@ -997,7 +1022,7 @@ function randomizeOptions() {
     regionsInput.value = regionsOutput.value = rand(7, 17);
   }
   if (lockManorsInput.getAttribute('data-locked') == 0) {
-    const manors = regionsInput.value * 20 + rand(180 * mod);
+    manors = regionsInput.value * 20 + rand(180 * mod);
     manorsInput.value = manorsOutput.innerHTML = manors;
   }
   if (lockPowerInput.getAttribute('data-locked') == 0) {
@@ -1385,7 +1410,7 @@ function restoreDefaultOptions() {
   mapHeightInput.value = window.innerHeight;
   changeMapSize();
   graphSize = sizeInput.value = sizeOutput.value = 1;
-  $('#options i[class^=\'icon-lock\']').each(function () {
+  $('#options i[class^=\'icon-lock\']').each(() => {
     this.setAttribute('data-locked', 0);
     this.className = 'icon-lock-open';
     if (this.id === 'lockNeutralInput' || this.id === 'lockSwampinessInput') {
@@ -2073,7 +2098,7 @@ function getHexGridPoints(size, type) {
 // close all dialogs except stated
 function closeDialogs(except) {
   except = except || '#except';
-  $('.dialog:visible').not(except).each(function (e) {
+  $('.dialog:visible').not(except).each((e) => {
     $(this).dialog('close');
   });
 }
@@ -2095,7 +2120,7 @@ function clickToAdd() {
   modules.clickToAdd = true;
 
   // add label on click
-  $('#addLabel').click(function () {
+  $('#addLabel').click(() => {
     if ($(this).hasClass('pressed')) {
       $('.pressed').removeClass('pressed');
       restoreDefaultEvents();
@@ -2139,7 +2164,7 @@ function clickToAdd() {
   }
 
   // add burg on click
-  $('#addBurg').click(function () {
+  $('#addBurg').click(() => {
     if ($(this).hasClass('pressed')) {
       $('.pressed').removeClass('pressed');
       restoreDefaultEvents();
@@ -2239,7 +2264,7 @@ function clickToAdd() {
   }
 
   // add river on click
-  $('#addRiver').click(function () {
+  $('#addRiver').click(() => {
     if ($(this).hasClass('pressed')) {
       $('.pressed').removeClass('pressed');
       unselect();
@@ -2359,7 +2384,7 @@ function clickToAdd() {
   }
 
   // add relief icon on click
-  $('#addRelief').click(function () {
+  $('#addRelief').click(() => {
     if ($(this).hasClass('pressed')) {
       $('.pressed').removeClass('pressed');
       restoreDefaultEvents();
@@ -2402,7 +2427,7 @@ function clickToAdd() {
   });
 
   // add marker on click
-  $('#addMarker').click(function () {
+  $('#addMarker').click(() => {
     if ($(this).hasClass('pressed')) {
       $('.pressed').removeClass('pressed');
       restoreDefaultEvents();
@@ -2559,7 +2584,7 @@ function landmassClicked() {
 function sortAssignedColors() {
   const data = [];
   const colors = d3.select('#colorsAssigned').selectAll('.color-div');
-  colors.each(function (d) {
+  colors.each((d) => {
     const id = d3.select(this).attr('id');
     const height = +d3.select(this).attr('data-height');
     data.push({
@@ -2573,7 +2598,7 @@ function sortAssignedColors() {
 }
 
 // auto assign color based on luminosity or hue
-function autoAssing(type) {
+function autoAssign(type) {
   const imageData = ctx.getImageData(0, 0, svgWidth, svgHeight);
   const data = imageData.data;
   $('#landmass > path, .color-div').remove();
@@ -2687,7 +2712,8 @@ export {
   addStep,
   landmassClicked,
   sortAssignedColors,
-  autoAssing,
-  completeConvertion
+  autoAssign,
+  completeConvertion,
+  manors
 };
 

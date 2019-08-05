@@ -1,3 +1,4 @@
+import $ from 'jquery';
 // generic function to move any burg to any group
 function moveBurgToGroup(id, g) {
   $(`#burgLabels [data-id=${id}]`).detach().appendTo($(`#burgLabels > #${g}`));
@@ -177,10 +178,11 @@ function calculatePopulation() {
   // collect data for neutrals
   const neutralCells = $.grep(cells, (e) => e.region === 'neutral');
   if (neutralCells.length) {
-    let burgs = 0,
-      urbanPopulation = 0,
-      ruralPopulation = 0,
-      area = 0;
+    let [burgs, urbanPopulation, ruralPopulation, area] = [0];
+    // let burgs = 0,
+    //   urbanPopulation = 0,
+    //   ruralPopulation = 0,
+    //   area = 0;
     manors.forEach((m) => {
       if (m.region !== 'neutral') {
         return;

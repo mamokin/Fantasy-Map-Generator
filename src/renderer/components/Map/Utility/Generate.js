@@ -1008,6 +1008,7 @@ function transformPt(pt) {
 
 export {
   generateMainRoads,
+  generateName,
   generatePortRoads,
   generateSmallRoads,
   generateOceanRoutes,
@@ -1018,4 +1019,4 @@ export {
   getJitteredGrid,
   getCellIndex,
   transformPt
-}
+};

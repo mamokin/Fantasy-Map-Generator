@@ -6,5 +6,4 @@ function addMountain() {
   add(cell, 'mountain', height);
 }
 
-
-export default addMountain;
+export {addMountain};
