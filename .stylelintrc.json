@@ -1,0 +1,7 @@
+{
+  "extends": "./src/renderer/assets/styling/index.js",
+  "ignoreFiles": [
+    "**/*.js",
+    "**/*.jsx"
+  ]
+}

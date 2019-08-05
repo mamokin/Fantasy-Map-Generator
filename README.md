@@ -12,6 +12,8 @@ The boilerplate for making electron applications built with vue (pretty much wha
 
 <div align="center">
 
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 </div>

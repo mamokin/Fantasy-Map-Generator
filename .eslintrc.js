@@ -51,7 +51,7 @@ module.exports = {
     "prefer-destructuring": "off",
     "import/no-named-as-default": 0,
     "max-len": ["error", {
-        "code": 100
+        "code": 200
     }],
     "implicit-arrow-linebreak": ["error", "beside"],
     "arrow-parens": ["error", "always"],
