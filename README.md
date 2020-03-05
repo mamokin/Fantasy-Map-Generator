@@ -1,3 +1,6 @@
+# Project Scope Change
+This project was originality going to be a rewrite to clean up the code with some"best practices" and be deployed wrapped in Electron. Now, it will still do that but it will do so within React and be planned better.
+There is still some use for this repo while the existing work and logic is ported to a new one on Gitlab so stay tuned!
 <div align="center">
 </div>
 
