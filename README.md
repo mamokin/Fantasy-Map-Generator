@@ -86,8 +86,6 @@ The boilerplate for making electron applications built with vue (pretty much wha
 
 </details>
 
-# [Check Out The Trello For Progress and Future Development!](https://trello.com/b/9gavZSce)  
-
 # Fantasy Map Generator
 
 Azgaar's _Fantasy Map Generator_. Online tool generating interactive svg maps based on [D3](https://d3js.org) voronoi diagram.
